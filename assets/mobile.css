@@ -64,15 +64,18 @@
   }
 
   /* Rokuyo description */
-  .bg-gray-50.rounded-lg.p-4 .text-gray-700,
-  .bg-gray-50.rounded-lg.p-4 p {
+  :not(.dark) .bg-gray-50.rounded-lg.p-4 .text-gray-700,
+  :not(.dark) .bg-gray-50.rounded-lg.p-4 p {
     font-size: 1rem !important;
     line-height: 1.625 !important;
     color: #1f2937 !important;
   }
 
-  .dark .bg-gray-700.rounded-lg.p-4 p {
-    color: #f3f4f6 !important;
+  .dark .bg-gray-50.rounded-lg.p-4 p,
+  .dark .bg-gray-700.rounded-lg.p-4 p,
+  .dark .bg-gray-50.rounded-lg.p-4 .text-gray-700,
+  .dark .bg-gray-700.rounded-lg.p-4 .text-gray-700 {
+    color: #ffffff !important;
   }
 
   /* Footer disclaimer */
