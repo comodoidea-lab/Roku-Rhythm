@@ -1,0 +1,171 @@
+/* Mobile visibility improvements for Roku Rhythm */
+@media (max-width: 640px) {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* Page layout */
+  .min-h-screen .max-w-4xl {
+    padding-left: max(1rem, env(safe-area-inset-left)) !important;
+    padding-right: max(1rem, env(safe-area-inset-right)) !important;
+    padding-top: max(1.25rem, env(safe-area-inset-top)) !important;
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom)) !important;
+  }
+
+  .min-h-screen .py-12 {
+    padding-top: 1.25rem !important;
+    padding-bottom: 1.5rem !important;
+  }
+
+  /* Main card */
+  .rounded-2xl.shadow-xl.p-6 {
+    padding: 1.25rem !important;
+  }
+
+  /* Header */
+  .text-4xl {
+    font-size: 1.875rem !important;
+    line-height: 2.25rem !important;
+  }
+
+  .mb-8 > .text-sm.text-gray-600,
+  .mb-8 > .text-sm {
+    font-size: 0.9375rem !important;
+    color: #374151 !important;
+  }
+
+  /* Settings button touch target */
+  .absolute.right-4.top-4.p-2 {
+    padding: 0.75rem !important;
+    right: 0.75rem !important;
+    top: 0.75rem !important;
+  }
+
+  /* User info */
+  .text-sm.text-gray-600 {
+    font-size: 0.9375rem !important;
+    color: #374151 !important;
+  }
+
+  .dark .text-sm.text-gray-600,
+  .dark .text-gray-400 {
+    color: #d1d5db !important;
+  }
+
+  /* Rokuyo heading */
+  .text-2xl.font-bold {
+    font-size: 1.375rem !important;
+    line-height: 1.75rem !important;
+  }
+
+  /* Rokuyo description */
+  .bg-gray-50.rounded-lg.p-4 .text-gray-700,
+  .bg-gray-50.rounded-lg.p-4 p {
+    font-size: 1rem !important;
+    line-height: 1.625 !important;
+    color: #1f2937 !important;
+  }
+
+  .dark .bg-gray-700.rounded-lg.p-4 p {
+    color: #f3f4f6 !important;
+  }
+
+  /* Section headings */
+  .text-xl.font-semibold {
+    font-size: 1.125rem !important;
+  }
+
+  /* Biorhythm table */
+  table.text-sm,
+  table.text-sm th,
+  table.text-sm td {
+    font-size: 0.9375rem !important;
+  }
+
+  table.text-sm th {
+    color: #374151 !important;
+    font-weight: 600 !important;
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+
+  table.text-sm td {
+    padding-top: 0.875rem !important;
+    padding-bottom: 0.875rem !important;
+  }
+
+  table.text-sm td.text-gray-600 {
+    color: #1f2937 !important;
+    font-weight: 500 !important;
+  }
+
+  table.text-sm td.text-gray-500 {
+    color: #374151 !important;
+    font-weight: 600 !important;
+  }
+
+  table.text-sm td.font-medium {
+    font-size: 0.9375rem !important;
+  }
+
+  /* Chart container */
+  .h-\[300px\] {
+    height: 22rem !important;
+    min-height: 22rem !important;
+  }
+
+  /* Recharts readability */
+  .recharts-cartesian-axis-tick-value tspan,
+  .recharts-cartesian-axis-tick-value text {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    fill: #374151 !important;
+  }
+
+  .dark .recharts-cartesian-axis-tick-value tspan,
+  .dark .recharts-cartesian-axis-tick-value text {
+    fill: #d1d5db !important;
+  }
+
+  .recharts-line-curve {
+    stroke-width: 3 !important;
+  }
+
+  .recharts-legend-item-text {
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    color: #374151 !important;
+  }
+
+  .dark .recharts-legend-item-text {
+    color: #e5e7eb !important;
+  }
+
+  .recharts-default-legend {
+    padding-top: 0.75rem !important;
+  }
+
+  .recharts-tooltip-item,
+  .recharts-tooltip-item-value {
+    font-size: 0.875rem !important;
+  }
+
+  /* Footer disclaimer */
+  .text-center.text-xs.text-gray-500,
+  .text-xs.text-gray-500 {
+    font-size: 0.8125rem !important;
+    line-height: 1.5 !important;
+    color: #4b5563 !important;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .dark .text-xs.text-gray-400 {
+    color: #9ca3af !important;
+  }
+}
