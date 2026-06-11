@@ -75,84 +75,98 @@
     color: #f3f4f6 !important;
   }
 
-  /* Section headings */
-  .text-xl.font-semibold {
-    font-size: 1.125rem !important;
+  /* Footer disclaimer */
+  .mt-8 {
+    margin-top: 0.75rem !important;
   }
 
-  /* Biorhythm table */
-  table.text-sm,
-  table.text-sm th,
-  table.text-sm td {
-    font-size: 0.9375rem !important;
+  .mt-8 > .text-xl.font-semibold.mb-4 {
+    font-size: 0.8125rem !important;
+    line-height: 1.25rem !important;
+    margin-bottom: 0.375rem !important;
   }
 
-  table.text-sm th {
+  .mt-8 table.text-sm,
+  .mt-8 table.text-sm th,
+  .mt-8 table.text-sm td {
+    font-size: 0.6875rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .mt-8 table.text-sm th {
     color: #374151 !important;
     font-weight: 600 !important;
-    padding-top: 0.75rem !important;
-    padding-bottom: 0.75rem !important;
+    padding: 0.25rem 0.375rem !important;
   }
 
-  table.text-sm td {
-    padding-top: 0.875rem !important;
-    padding-bottom: 0.875rem !important;
+  .mt-8 table.text-sm td {
+    padding: 0.3125rem 0.375rem !important;
   }
 
-  table.text-sm td.text-gray-600 {
-    color: #1f2937 !important;
+  .mt-8 table.text-sm td.text-gray-600 {
+    color: #374151 !important;
     font-weight: 500 !important;
   }
 
-  table.text-sm td.text-gray-500 {
-    color: #374151 !important;
+  .mt-8 table.text-sm td.text-gray-500 {
+    color: #4b5563 !important;
     font-weight: 600 !important;
   }
 
-  table.text-sm td.font-medium {
-    font-size: 0.9375rem !important;
+  .mt-8 .overflow-x-auto {
+    margin-bottom: 0 !important;
   }
 
-  /* Chart container */
-  .h-\[300px\] {
-    height: 22rem !important;
-    min-height: 22rem !important;
+  /* --- Markup: バイオリズムグラフ --- */
+  .mt-8 .h-\[300px\] {
+    height: 9.75rem !important;
+    min-height: 9.75rem !important;
+    margin-top: 0.5rem !important;
   }
 
-  /* Recharts readability */
-  .recharts-cartesian-axis-tick-value tspan,
-  .recharts-cartesian-axis-tick-value text {
-    font-size: 13px !important;
+  .mt-8 .recharts-responsive-container,
+  .mt-8 .recharts-wrapper {
+    max-height: 9.75rem !important;
+  }
+
+  .mt-8 .recharts-cartesian-axis-tick-value tspan,
+  .mt-8 .recharts-cartesian-axis-tick-value text {
+    font-size: 9px !important;
     font-weight: 500 !important;
     fill: #374151 !important;
   }
 
-  .dark .recharts-cartesian-axis-tick-value tspan,
-  .dark .recharts-cartesian-axis-tick-value text {
+  .dark .mt-8 .recharts-cartesian-axis-tick-value tspan,
+  .dark .mt-8 .recharts-cartesian-axis-tick-value text {
     fill: #d1d5db !important;
   }
 
-  .recharts-line-curve {
-    stroke-width: 3 !important;
+  .mt-8 .recharts-line-curve {
+    stroke-width: 2 !important;
   }
 
-  .recharts-legend-item-text {
-    font-size: 0.875rem !important;
+  .mt-8 .recharts-legend-item-text {
+    font-size: 0.625rem !important;
     font-weight: 500 !important;
     color: #374151 !important;
   }
 
-  .dark .recharts-legend-item-text {
+  .dark .mt-8 .recharts-legend-item-text {
     color: #e5e7eb !important;
   }
 
-  .recharts-default-legend {
-    padding-top: 0.75rem !important;
+  .mt-8 .recharts-default-legend {
+    padding-top: 0.125rem !important;
+    margin-top: -0.25rem !important;
   }
 
-  .recharts-tooltip-item,
-  .recharts-tooltip-item-value {
-    font-size: 0.875rem !important;
+  .mt-8 .recharts-legend-item {
+    margin-right: 0.5rem !important;
+  }
+
+  .mt-8 .recharts-tooltip-item,
+  .mt-8 .recharts-tooltip-item-value {
+    font-size: 0.75rem !important;
   }
 
   /* Footer disclaimer */
