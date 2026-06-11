@@ -116,6 +116,12 @@
     font-weight: 600 !important;
   }
 
+  .dark .mt-8 table.text-sm th,
+  .dark .mt-8 table.text-sm td.text-gray-600,
+  .dark .mt-8 table.text-sm td.text-gray-500 {
+    color: #ffffff !important;
+  }
+
   .mt-8 .overflow-x-auto {
     margin-bottom: 0 !important;
   }
