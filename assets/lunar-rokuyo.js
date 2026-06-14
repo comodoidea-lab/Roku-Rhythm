@@ -160,11 +160,159 @@
     ],
   };
 
-  window.getRokuyoComment = function (rokuyo, date) {
-    var list = ROKUYO_COMMENTS[rokuyo];
-    if (!list || !list.length) return "";
+  window.getRokuyoComment = function (rokuyo, date, bio, hasProfile) {
     var d = date instanceof Date ? date : new Date(date);
     var seed = d.getFullYear() * 372 + (d.getMonth() + 1) * 31 + d.getDate();
-    return list[seed % list.length];
+
+    if (hasProfile && bio) {
+      var dominant = pickDominantAspect(bio);
+      var bucket = bioBucket(dominant.value);
+      var list = buildBioComments(rokuyo, dominant.aspect, bucket);
+      if (list && list.length) return list[seed % list.length];
+    }
+
+    var fallback = ROKUYO_COMMENTS[rokuyo];
+    if (!fallback || !fallback.length) return "";
+    return fallback[seed % fallback.length];
+  };
+
+  function bioBucket(value) {
+    if (value >= 30) return "good";
+    if (value <= -30) return "bad";
+    return "neutral";
+  }
+
+  function pickDominantAspect(bio) {
+    var items = [
+      { aspect: "physical", value: bio.physical || 0 },
+      { aspect: "emotional", value: bio.emotional || 0 },
+      { aspect: "intellectual", value: bio.intellectual || 0 },
+    ];
+    items.sort(function (a, b) {
+      var diff = Math.abs(b.value) - Math.abs(a.value);
+      if (diff !== 0) return diff;
+      var order = { physical: 0, emotional: 1, intellectual: 2 };
+      return order[a.aspect] - order[b.aspect];
+    });
+    return items[0];
+  }
+
+  function buildBioComments(rokuyo, aspect, bucket) {
+    var key = rokuyo + "|" + aspect + "|" + bucket;
+    if (BIO_COMMENT_TWEAKS[key]) return BIO_COMMENT_TWEAKS[key];
+    var opens = ROKUYO_OPEN[rokuyo];
+    var tails = BIO_TAIL[aspect][bucket];
+    return [opens[0] + tails[0], opens[1] + tails[1], opens[2] + tails[2]];
+  }
+
+  var ROKUYO_OPEN = {
+    大安: ["大安の日。", "大吉の大安。", "良い流れの大安。"],
+    赤口: ["赤口の日。", "赤口ながら", "口舌に気をつけたい赤口。"],
+    先勝: ["先勝の日。", "午前勝負の先勝。", "早めが吉の先勝。"],
+    友引: ["友引の日。", "人との縁の友引。", "話し合い向きの友引。"],
+    先負: ["先負の日。", "慎重さが鍵の先負。", "急がば回れの先負。"],
+    仏滅: ["仏滅の日。", "静かに過ごす仏滅。", "休息向きの仏滅。"],
+  };
+
+  var BIO_TAIL = {
+    physical: {
+      good: [
+        "体力も充実し、動きやすい一日になりそう。",
+        "からだが軽く、新しいことを始めやすい。",
+        "エネルギッシュで、行動的に過ごせそう。",
+      ],
+      neutral: [
+        "体力は標準的。無理のないペースで進んで。",
+        "からだの調子は並。小休止を挟むと吉。",
+        "体力に余裕は少なめ。平坦に過ごして。",
+      ],
+      bad: [
+        "体力面は低調。休息を優先に。",
+        "からだが重め。無理は禁物。",
+        "エネルギー不足。早めに休むとよい。",
+      ],
+    },
+    emotional: {
+      good: [
+        "感情面も安定し、前向きに過ごせそう。",
+        "気分は上向き。人とのやりとりもスムーズ。",
+        "心が穏やか。良い気持ちで動ける日。",
+      ],
+      neutral: [
+        "感情は平坦。大きな起伏は少なそう。",
+        "気分は並。穏やかに過ごすと吉。",
+        "心の波は小さめ。静かに整える日。",
+      ],
+      bad: [
+        "感情面は波あり。大きな決断は慎重に。",
+        "気分が揺れやすい。一人の時間も大切に。",
+        "心が疲れ気味。無理な衝突は避けて。",
+      ],
+    },
+    intellectual: {
+      good: [
+        "知性も冴え、判断が冴える一日。",
+        "頭がクリア。考えごとがはかどりやすい。",
+        "集中力が高く、学びや企画に向く。",
+      ],
+      neutral: [
+        "思考は標準的。油断せず確認を。",
+        "頭の回転は並。丁寧さが味方に。",
+        "集中は普通。一つずつ進めると吉。",
+      ],
+      bad: [
+        "集中しにくい日。簡単な作業から始めて。",
+        "頭が重め。複雑な判断は見送りを。",
+        "思考が散漫になりやすい。休息を挟んで。",
+      ],
+    },
+  };
+
+  var BIO_COMMENT_TWEAKS = {
+    "赤口|physical|good": [
+      "赤口の日。体力は充実。午前だけ慎重に。",
+      "赤口ながらからだは軽い。昼過ぎから本番。",
+      "口舌に注意の日。体力は十分。午後に動くと吉。",
+    ],
+    "赤口|emotional|bad": [
+      "赤口の日。感情は波あり。言葉選びに注意。",
+      "赤口ながら心は揺れやすい。午前は控えめに。",
+      "口舌と感情が重なりやすい。午後は落ち着いて。",
+    ],
+    "先勝|physical|good": [
+      "先勝の日。体力も充実。午前中に仕掛けを。",
+      "早めが吉の先勝。からだが軽く朝イチ向き。",
+      "先勝に体力が味方。午前の行動が鍵。",
+    ],
+    "先勝|intellectual|good": [
+      "先勝の日。頭も冴え、午前の判断が吉。",
+      "早めが吉の先勝。集中力も高く午前向き。",
+      "先勝に知性が味方。朝に決断を。",
+    ],
+    "友引|emotional|good": [
+      "友引の日。気分も良く、人との縁に恵まれそう。",
+      "話し合い向きの友引。心が開く一日。",
+      "友引に感情が味方。あいさつが吉。",
+    ],
+    "友引|intellectual|good": [
+      "友引の日。知性も冴え、交渉がはかどりやすい。",
+      "人との縁の友引。頭も冴え話し合い向き。",
+      "友引に知性が味方。相手の話を聴くと吉。",
+    ],
+    "先負|physical|bad": [
+      "先負の日。体力も低調。段取りを整えてから。",
+      "急がば回れの先負。からだが重め。焦らずに。",
+      "先負に体力不足。午後に流れが良くなることも。",
+    ],
+    "仏滅|physical|bad": [
+      "仏滅の日。体力も低調。休息を最優先に。",
+      "静かに過ごす仏滅。からだが重め。無理は禁物。",
+      "休息向きの仏滅。エネルギー不足。早めに休んで。",
+    ],
+    "仏滅|emotional|bad": [
+      "仏滅の日。心も疲れ気味。静かに過ごして。",
+      "静かに過ごす仏滅。感情は波あり。一人の時間を。",
+      "休息向きの仏滅。気分が揺れやすい。穏やかに。",
+    ],
   };
 })();
