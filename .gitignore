@@ -3,3 +3,8 @@
 node_modules/
 package.json
 package-lock.json
+
+# Keep the reconstructed source self-contained without tracking its build output.
+!web-src/package.json
+!web-src/package-lock.json
+web-src/dist/
