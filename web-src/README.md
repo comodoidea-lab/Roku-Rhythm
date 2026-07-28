@@ -44,3 +44,19 @@ npx --yes @capacitor/assets@3.0.5 generate --android \
   --splashBackgroundColorDark '#ffffff' \
   --logoSplashScale 0.2
 ```
+
+## iOS and AltStore testing
+
+The Capacitor iOS project uses Swift Package Manager and targets iOS 15 or
+later. Rebuild and sync it from inside `web-src/` with:
+
+```bash
+npm run build
+npx cap sync ios
+```
+
+The GitHub Actions workflow `iOS unsigned IPA for AltStore` builds the device
+app without an Apple signing identity and uploads
+`Roku-Rhythm-unsigned.ipa`. AltStore performs the device-specific signing on
+the user's Mac/iPhone. See `ALTSTORE_TESTING.md` for the installation and
+verification checklist.
