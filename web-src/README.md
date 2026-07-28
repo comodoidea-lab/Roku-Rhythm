@@ -15,3 +15,18 @@ npm run dev
 
 `npm run build` writes only to `web-src/dist/`. It does not overwrite or deploy
 the existing PWA in the repository root.
+
+## Android icon and splash screen
+
+The reusable source image is `assets/logo.png`. Regenerate the Android assets
+from inside `web-src/` with:
+
+```bash
+npx --yes @capacitor/assets@3.0.5 generate --android \
+  --assetPath assets \
+  --iconBackgroundColor '#4338ca' \
+  --iconBackgroundColorDark '#4338ca' \
+  --splashBackgroundColor '#ffffff' \
+  --splashBackgroundColorDark '#ffffff' \
+  --logoSplashScale 0.2
+```
