@@ -16,13 +16,13 @@ export default defineConfig({
       manifest: {
         name: "Roku Rhythm",
         short_name: "Roku Rhythm",
-        description: "六曜とバイオリズムを組み合わせた運勢予測アプリ",
+        description: "六曜とバイオリズムを楽しむライフスタイルアプリ",
         start_url: "/",
         scope: "/",
         display: "standalone",
         background_color: "#ffffff",
         theme_color: "#4338ca",
-        lang: "en",
+        lang: "ja",
         icons: [
           {
             src: "icon-192.png",

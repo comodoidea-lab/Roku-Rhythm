@@ -11,15 +11,15 @@ export function calculateBiorhythm(birthDate, targetDate) {
 }
 
 export function getAssessment(value) {
-  if (value >= 80) return "極めて良い";
-  if (value >= 60) return "非常に良い";
-  if (value >= 30) return "やや良い";
-  if (value >= 10) return "少し良い";
-  if (value >= -10) return "普通";
-  if (value >= -30) return "少し悪い";
-  if (value >= -60) return "やや危険";
-  if (value >= -80) return "非常に危険";
-  return "極めて危険";
+  if (value >= 80) return "とても高い";
+  if (value >= 60) return "高い";
+  if (value >= 30) return "やや高め";
+  if (value >= 10) return "少し高め";
+  if (value >= -10) return "安定";
+  if (value >= -30) return "少し低め";
+  if (value >= -60) return "やや低め";
+  if (value >= -80) return "低い";
+  return "とても低い";
 }
 
 export function getAssessmentColor(value) {

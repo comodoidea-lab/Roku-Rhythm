@@ -1,14 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
+import { Share2 } from "lucide-react";
 import BiorhythmChart from "./components/BiorhythmChart";
 import BiorhythmTable from "./components/BiorhythmTable";
 import Header from "./components/Header";
 import LoginForm from "./components/LoginForm";
+import PrivacyPolicyModal from "./components/PrivacyPolicyModal";
 import SettingsModal from "./components/SettingsModal";
 import { calculateBiorhythm } from "./lib/biorhythm";
 import { getRokuyo, toJapanTime } from "./lib/date";
 import {
-  clearUserData,
+  getDailyReminderEnabled,
+  setDailyReminderEnabled,
+  supportsDailyReminder,
+} from "./lib/notifications";
+import { shareResult } from "./lib/share";
+import {
+  clearAppData,
   loadSettings,
   loadUserData,
   saveSettings,
@@ -20,15 +28,22 @@ export default function App() {
   const [birthDate, setBirthDate] = useState("");
   const [selectedDate, setSelectedDate] = useState(toJapanTime());
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [showDetailedStats, setShowDetailedStats] = useState(true);
+  const [dailyReminder, setDailyReminder] = useState(false);
+  const [reminderMessage, setReminderMessage] = useState("");
+  const [shareMessage, setShareMessage] = useState("");
+  const [sharing, setSharing] = useState(false);
+  const skipNextSettingsSave = useRef(false);
+  const dailyReminderSupported = supportsDailyReminder();
 
   useEffect(() => {
     const savedUser = loadUserData();
     const savedSettings = loadSettings();
 
     if (savedUser) {
-      setName(savedUser.name);
+      setName(savedUser.name || "");
       setBirthDate(savedUser.birthDate);
     }
 
@@ -39,14 +54,40 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (name && birthDate) {
+    let active = true;
+
+    if (!dailyReminderSupported) return undefined;
+
+    getDailyReminderEnabled()
+      .then((enabled) => {
+        if (active) setDailyReminder(enabled);
+      })
+      .catch(() => {
+        if (active) {
+          setReminderMessage("通知設定を確認できませんでした。");
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [dailyReminderSupported]);
+
+  useEffect(() => {
+    if (birthDate) {
       saveUserData({ name, birthDate });
     }
   }, [name, birthDate]);
 
   useEffect(() => {
-    saveSettings({ darkMode, showDetailedStats });
     document.documentElement.classList.toggle("dark", darkMode);
+
+    if (skipNextSettingsSave.current) {
+      skipNextSettingsSave.current = false;
+      return;
+    }
+
+    saveSettings({ darkMode, showDetailedStats });
   }, [darkMode, showDetailedStats]);
 
   function handleLogin(nextName, nextBirthDate) {
@@ -54,11 +95,78 @@ export default function App() {
     setBirthDate(nextBirthDate);
   }
 
-  function handleLogout() {
-    clearUserData();
+  async function handleDeleteData() {
+    const shouldDelete = window.confirm(
+      "プロフィール、表示設定、通知設定をこの端末から削除しますか？",
+    );
+    if (!shouldDelete) return;
+
+    try {
+      await setDailyReminderEnabled(false);
+    } catch {
+      // Continue deleting local data even if the OS notification cannot be changed.
+    }
+
+    skipNextSettingsSave.current = true;
+    clearAppData();
     setName("");
     setBirthDate("");
+    setSelectedDate(toJapanTime());
+    setDarkMode(false);
+    setShowDetailedStats(true);
+    setDailyReminder(false);
+    setReminderMessage("");
+    setShareMessage("");
     setSettingsOpen(false);
+    setPrivacyOpen(false);
+  }
+
+  async function handleDailyReminderChange(enabled) {
+    setReminderMessage("通知設定を更新しています…");
+
+    try {
+      const result = await setDailyReminderEnabled(enabled);
+      setDailyReminder(result.enabled);
+
+      if (result.reason === "permission-denied") {
+        setReminderMessage(
+          "通知が許可されていません。端末の設定から許可できます。",
+        );
+      } else if (result.reason === "unsupported") {
+        setReminderMessage("通知はインストールしたアプリで利用できます。");
+      } else {
+        setReminderMessage(
+          result.enabled
+            ? "毎朝8時の通知を設定しました。"
+            : "毎朝の通知を解除しました。",
+        );
+      }
+    } catch {
+      setDailyReminder(false);
+      setReminderMessage("通知設定を更新できませんでした。");
+    }
+  }
+
+  async function handleShare() {
+    setSharing(true);
+    setShareMessage("");
+
+    try {
+      const result = await shareResult({
+        date: selectedDate,
+        rokuyo,
+        biorhythm,
+      });
+      setShareMessage(
+        result === "copied"
+          ? "結果をクリップボードにコピーしました。"
+          : "共有画面を開きました。",
+      );
+    } catch {
+      setShareMessage("この端末では結果を共有できませんでした。");
+    } finally {
+      setSharing(false);
+    }
   }
 
   const rokuyo = getRokuyo(selectedDate);
@@ -107,6 +215,23 @@ export default function App() {
                     {rokuyoComment}
                   </p>
                 </div>
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  disabled={sharing}
+                  className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg border border-blue-600 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-50 disabled:cursor-wait disabled:opacity-60 dark:border-blue-400 dark:text-blue-300 dark:hover:bg-gray-700"
+                >
+                  <Share2 className="mr-2" size={18} aria-hidden="true" />
+                  {sharing ? "共有を準備中…" : "この結果を共有"}
+                </button>
+                {shareMessage ? (
+                  <p
+                    className="mt-2 text-sm text-gray-600 dark:text-gray-300"
+                    aria-live="polite"
+                  >
+                    {shareMessage}
+                  </p>
+                ) : null}
               </div>
 
               <div className="mt-8">
@@ -138,7 +263,20 @@ export default function App() {
           onDarkModeChange={setDarkMode}
           showDetailedStats={showDetailedStats}
           onShowDetailedStatsChange={setShowDetailedStats}
-          onLogout={handleLogout}
+          dailyReminder={dailyReminder}
+          dailyReminderSupported={dailyReminderSupported}
+          reminderMessage={reminderMessage}
+          onDailyReminderChange={handleDailyReminderChange}
+          onOpenPrivacy={() => {
+            setSettingsOpen(false);
+            setPrivacyOpen(true);
+          }}
+          onDeleteData={handleDeleteData}
+        />
+
+        <PrivacyPolicyModal
+          isOpen={privacyOpen}
+          onClose={() => setPrivacyOpen(false)}
         />
       </div>
     </div>

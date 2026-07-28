@@ -45,10 +45,10 @@ test("biorhythm cycles return to zero after their periods", () => {
 });
 
 test("assessment labels and colors preserve current boundaries", () => {
-  assert.equal(getAssessment(80), "極めて良い");
-  assert.equal(getAssessment(10), "少し良い");
-  assert.equal(getAssessment(-10), "普通");
-  assert.equal(getAssessment(-81), "極めて危険");
+  assert.equal(getAssessment(80), "とても高い");
+  assert.equal(getAssessment(10), "少し高め");
+  assert.equal(getAssessment(-10), "安定");
+  assert.equal(getAssessment(-81), "とても低い");
   assert.equal(getAssessmentColor(60), "#22c55e");
   assert.equal(getAssessmentColor(30), "#3b82f6");
   assert.equal(getAssessmentColor(-30), "#6b7280");

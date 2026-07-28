@@ -22,3 +22,8 @@ export function loadSettings() {
   const value = localStorage.getItem(SETTINGS_KEY);
   return value ? JSON.parse(value) : null;
 }
+
+export function clearAppData() {
+  localStorage.removeItem(USER_DATA_KEY);
+  localStorage.removeItem(SETTINGS_KEY);
+}
