@@ -1,0 +1,91 @@
+name: iOS unsigned IPA for AltStore
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - codex/native-app
+    paths:
+      - "web-src/**"
+      - ".github/workflows/ios-unsigned-ipa.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-unsigned-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-unsigned-ipa:
+    runs-on: macos-26
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: web-src
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.13"
+          cache: npm
+          cache-dependency-path: web-src/package-lock.json
+
+      - name: Show Xcode version
+        run: |
+          xcodebuild -version
+          xcode-select -p
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web app
+        run: npm run build
+
+      - name: Sync Capacitor iOS project
+        run: npx cap sync ios
+
+      - name: Build unsigned device app
+        run: |
+          xcodebuild \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath ios-build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Package unsigned IPA
+        run: |
+          APP_PATH="ios-build/Build/Products/Release-iphoneos/App.app"
+          test -d "$APP_PATH"
+
+          EXECUTABLE_NAME=$(/usr/libexec/PlistBuddy -c "Print :CFBundleExecutable" "$APP_PATH/Info.plist")
+          test -x "$APP_PATH/$EXECUTABLE_NAME"
+
+          mkdir -p "unsigned-ipa/Payload"
+          ditto "$APP_PATH" "unsigned-ipa/Payload/Roku Rhythm.app"
+          (
+            cd unsigned-ipa
+            /usr/bin/zip -qry "Roku-Rhythm-unsigned.ipa" Payload
+            shasum -a 256 "Roku-Rhythm-unsigned.ipa" > "Roku-Rhythm-unsigned.ipa.sha256"
+          )
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v6
+        with:
+          name: roku-rhythm-altstore-unsigned-ipa
+          path: |
+            web-src/unsigned-ipa/Roku-Rhythm-unsigned.ipa
+            web-src/unsigned-ipa/Roku-Rhythm-unsigned.ipa.sha256
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
