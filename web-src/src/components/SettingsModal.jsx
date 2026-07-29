@@ -49,9 +49,9 @@ export default function SettingsModal({
           type="button"
           aria-label="設定を閉じる"
           onClick={onClose}
-          className="absolute right-4 top-4 text-gray-500 hover:text-gray-700"
+          className="absolute right-2 top-2 inline-flex min-h-11 min-w-11 touch-manipulation items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
         >
-          <X size={20} />
+          <X size={22} aria-hidden="true" />
         </button>
 
         <h2

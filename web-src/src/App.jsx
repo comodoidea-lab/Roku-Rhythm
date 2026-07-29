@@ -155,6 +155,7 @@ export default function App() {
       const result = await shareResult({
         date: selectedDate,
         rokuyo,
+        comment: rokuyoComment,
         biorhythm,
       });
       setShareMessage(
@@ -188,7 +189,7 @@ export default function App() {
           : "bg-gradient-to-b from-gray-50 to-gray-100"
       }`}
     >
-      <div className="relative mx-auto max-w-4xl px-4 py-12">
+      <main className="app-shell relative mx-auto max-w-4xl px-4 py-12">
         <Header onOpenSettings={() => setSettingsOpen(true)} />
 
         <div className="mb-8 rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800">
@@ -278,7 +279,7 @@ export default function App() {
           isOpen={privacyOpen}
           onClose={() => setPrivacyOpen(false)}
         />
-      </div>
+      </main>
     </div>
   );
 }
