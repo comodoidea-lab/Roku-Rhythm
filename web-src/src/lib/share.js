@@ -8,8 +8,8 @@ import {
   createReceiptFilename,
 } from "./receipt.js";
 import {
+  renderAndroidReceiptJpeg,
   renderReceiptPng,
-  renderReceiptPngBase64,
 } from "./receiptImage.js";
 
 function formatBiorhythmLine(label, value) {
@@ -94,17 +94,36 @@ export function isValidNativeReceiptFile({ uri, size }) {
   return uri.startsWith("file:") && size >= 10_000;
 }
 
+export function isValidAndroidReceiptBlob({ type, size }) {
+  return type === "image/jpeg" && size >= 10_000;
+}
+
 async function shareAndroidReceipt({
   result,
   text,
+  beforeImagePreparation,
   beforeNativeShare,
 }) {
+  await beforeImagePreparation?.();
+
   const { writeResult, fileInfo } = await withTimeout(
     (async () => {
-      const base64 = await renderReceiptPngBase64(result);
+      const image = await renderAndroidReceiptJpeg(result);
+
+      if (
+        !isValidAndroidReceiptBlob({
+          type: image.type,
+          size: image.size,
+        })
+      ) {
+        throw new Error("receipt-image-invalid");
+      }
+
+      const base64 = await blobToBase64(image);
       const filename = createNativeReceiptFilename(
         result.date,
         Date.now().toString(36),
+        "jpg",
       );
       const nextWriteResult = await Filesystem.writeFile({
         path: filename,
@@ -121,7 +140,7 @@ async function shareAndroidReceipt({
         fileInfo: nextFileInfo,
       };
     })(),
-    12_000,
+    10_000,
     "receipt-preparation-timeout",
   );
 
@@ -170,6 +189,7 @@ export async function shareResult(result, options = {}) {
     return shareAndroidReceipt({
       result,
       text,
+      beforeImagePreparation: options.beforeImagePreparation,
       beforeNativeShare: options.beforeNativeShare,
     });
   }

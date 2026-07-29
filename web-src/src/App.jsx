@@ -158,7 +158,7 @@ export default function App() {
     sharingRef.current = true;
     shareCanceledRef.current = false;
     setSharing(true);
-    setShareMessage("");
+    setShareMessage("共有画像を作成しています…");
 
     try {
       const result = await shareResult(
@@ -170,6 +170,14 @@ export default function App() {
           biorhythm,
         },
         {
+          beforeImagePreparation: async () => {
+            setReceiptOpen(false);
+            await new Promise((resolve) => {
+              window.requestAnimationFrame(() => {
+                window.requestAnimationFrame(resolve);
+              });
+            });
+          },
           beforeNativeShare: async () => {
             if (shareCanceledRef.current) {
               throw new Error("sharing-canceled");
@@ -259,6 +267,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={handleOpenReceipt}
+                    disabled={sharing}
                     aria-label="今日の六曜レシートを開く"
                     className="group flex min-h-16 w-full touch-manipulation items-center gap-3 border-t border-indigo-100 bg-gradient-to-r from-indigo-50 to-blue-50 px-4 py-3 text-left transition-colors hover:from-indigo-100 hover:to-blue-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 disabled:cursor-wait disabled:opacity-70 dark:border-indigo-400/20 dark:from-indigo-500/15 dark:to-blue-500/10 dark:hover:from-indigo-500/25 dark:hover:to-blue-500/20"
                   >

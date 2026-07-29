@@ -2,6 +2,7 @@ import { buildReceiptModel } from "./receipt.js";
 
 const WIDTH = 1024;
 const HEIGHT = 1536;
+const ANDROID_SCALE = 0.75;
 const PAPER = {
   left: 124,
   top: 112,
@@ -12,21 +13,8 @@ const PAPER = {
 function loadImage(src) {
   return new Promise((resolve, reject) => {
     const image = new Image();
-    image.decoding = "sync";
-    image.onload = async () => {
-      try {
-        if (typeof image.decode === "function") {
-          await image.decode();
-        }
-        resolve(image);
-      } catch (error) {
-        if (image.complete && image.naturalWidth > 0) {
-          resolve(image);
-        } else {
-          reject(error);
-        }
-      }
-    };
+    image.decoding = "async";
+    image.onload = () => resolve(image);
     image.onerror = reject;
     image.src = src;
   });
@@ -224,17 +212,18 @@ function drawWaves(context, model) {
   });
 }
 
-async function renderReceiptCanvas(result) {
+async function renderReceiptCanvas(result, scale = 1) {
   const model = buildReceiptModel(result);
   const canvas = document.createElement("canvas");
-  canvas.width = WIDTH;
-  canvas.height = HEIGHT;
+  canvas.width = Math.round(WIDTH * scale);
+  canvas.height = Math.round(HEIGHT * scale);
   const context = canvas.getContext("2d");
   const [background, logo] = await Promise.all([
     loadImage("/receipt-share-bg.jpg"),
     loadImage("/icon-512.png"),
   ]);
 
+  context.scale(scale, scale);
   context.drawImage(background, 0, 0, WIDTH, HEIGHT);
   drawPaper(context);
 
@@ -343,7 +332,13 @@ async function renderReceiptCanvas(result) {
     "#17165d",
   );
 
-  const cornerPixel = context.getImageData(8, 8, 1, 1).data;
+  const samplePosition = Math.max(1, Math.round(8 * scale));
+  const cornerPixel = context.getImageData(
+    samplePosition,
+    samplePosition,
+    1,
+    1,
+  ).data;
   const cornerIsBlank =
     cornerPixel[3] === 0 ||
     (cornerPixel[0] > 248 &&
@@ -357,30 +352,24 @@ async function renderReceiptCanvas(result) {
   return canvas;
 }
 
-export async function renderReceiptPng(result) {
-  const canvas = await renderReceiptCanvas(result);
-
+function canvasToBlob(canvas, type, quality) {
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {
-      if (blob) resolve(blob);
+      canvas.width = 1;
+      canvas.height = 1;
+
+      if (blob?.size) resolve(blob);
       else reject(new Error("receipt-image-creation-failed"));
-    }, "image/png");
+    }, type, quality);
   });
 }
 
-export async function renderReceiptPngBase64(result) {
+export async function renderReceiptPng(result) {
   const canvas = await renderReceiptCanvas(result);
+  return canvasToBlob(canvas, "image/png");
+}
 
-  await new Promise((resolve) => {
-    window.requestAnimationFrame(() => resolve());
-  });
-
-  const dataUrl = canvas.toDataURL("image/png");
-  const base64 = dataUrl.split(",")[1];
-
-  if (!base64 || base64.length < 16_000) {
-    throw new Error("receipt-image-empty");
-  }
-
-  return base64;
+export async function renderAndroidReceiptJpeg(result) {
+  const canvas = await renderReceiptCanvas(result, ANDROID_SCALE);
+  return canvasToBlob(canvas, "image/jpeg", 0.9);
 }

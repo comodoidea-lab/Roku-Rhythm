@@ -4,6 +4,7 @@ import {
   buildAndroidShareOptions,
   buildShareText,
   isCanceledShare,
+  isValidAndroidReceiptBlob,
   isValidNativeReceiptFile,
 } from "../src/lib/share.js";
 import {
@@ -47,6 +48,14 @@ test("receipt helpers format signed values and a stable PNG filename", () => {
     createNativeReceiptFilename(new Date(2026, 6, 29), "android-test"),
     "roku-rhythm-2026-07-29-android-test.png",
   );
+  assert.equal(
+    createNativeReceiptFilename(
+      new Date(2026, 6, 29),
+      "android-test",
+      "jpg",
+    ),
+    "roku-rhythm-2026-07-29-android-test.jpg",
+  );
 });
 
 test("receipt wave data ends on the selected date and uses real biorhythm values", () => {
@@ -86,6 +95,20 @@ test("Android shares one verified cache image as a URL", () => {
     isValidNativeReceiptFile({
       uri: options.url,
       size: 500,
+    }),
+    false,
+  );
+  assert.equal(
+    isValidAndroidReceiptBlob({
+      type: "image/jpeg",
+      size: 32_000,
+    }),
+    true,
+  );
+  assert.equal(
+    isValidAndroidReceiptBlob({
+      type: "image/png",
+      size: 32_000,
     }),
     false,
   );

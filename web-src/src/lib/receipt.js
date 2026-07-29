@@ -71,6 +71,10 @@ export function createReceiptFilename(date) {
   return `roku-rhythm-${format(date, "yyyy-MM-dd")}.png`;
 }
 
-export function createNativeReceiptFilename(date, nonce = Date.now()) {
-  return `roku-rhythm-${format(date, "yyyy-MM-dd")}-${nonce}.png`;
+export function createNativeReceiptFilename(
+  date,
+  nonce = Date.now(),
+  extension = "png",
+) {
+  return `roku-rhythm-${format(date, "yyyy-MM-dd")}-${nonce}.${extension}`;
 }
