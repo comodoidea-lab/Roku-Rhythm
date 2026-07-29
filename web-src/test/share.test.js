@@ -1,15 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  buildAndroidShareOptions,
+  buildNativeAndroidReceiptPayload,
   buildShareText,
-  isCanceledShare,
-  isValidAndroidReceiptBlob,
-  isValidNativeReceiptFile,
 } from "../src/lib/share.js";
 import {
   buildReceiptWaveData,
-  createNativeReceiptFilename,
   createReceiptFilename,
   formatSignedPercent,
 } from "../src/lib/receipt.js";
@@ -44,18 +40,6 @@ test("receipt helpers format signed values and a stable PNG filename", () => {
     createReceiptFilename(new Date(2026, 6, 29)),
     "roku-rhythm-2026-07-29.png",
   );
-  assert.equal(
-    createNativeReceiptFilename(new Date(2026, 6, 29), "android-test"),
-    "roku-rhythm-2026-07-29-android-test.png",
-  );
-  assert.equal(
-    createNativeReceiptFilename(
-      new Date(2026, 6, 29),
-      "android-test",
-      "jpg",
-    ),
-    "roku-rhythm-2026-07-29-android-test.jpg",
-  );
 });
 
 test("receipt wave data ends on the selected date and uses real biorhythm values", () => {
@@ -74,43 +58,42 @@ test("receipt wave data ends on the selected date and uses real biorhythm values
   assert.equal(typeof waves[14].intellectual, "number");
 });
 
-test("Android shares one verified cache image as a URL", () => {
-  const options = buildAndroidShareOptions({
-    result: { date: new Date(2026, 6, 29) },
-    text: "share text",
-    uri: "file:///cache/roku-rhythm-android-test.png",
-  });
+test("Android native receipt payload contains text, metrics, and wave data", () => {
+  const date = new Date(2026, 6, 29);
+  const birthDate = new Date(1975, 0, 9);
+  const expectedWaves = buildReceiptWaveData({ birthDate, date });
+  const payload = buildNativeAndroidReceiptPayload({
+    date,
+    birthDate,
+    rokuyo: "大安",
+    comment: "良い流れの大安。新しい一歩に追い風。",
+    biorhythm: {
+      physical: 12.4,
+      emotional: -5.6,
+      intellectual: 88.8,
+    },
+  }, "share text");
 
-  assert.equal(options.url, "file:///cache/roku-rhythm-android-test.png");
-  assert.equal(options.text, "share text");
-  assert.equal("files" in options, false);
+  assert.equal(payload.text, "share text");
+  assert.equal(payload.formattedDate, "2026 / 07 / 29");
+  assert.equal(payload.rokuyo, "大安");
+  assert.equal(payload.bodyValue, "+12%");
+  assert.equal(payload.emotionValue, "-6%");
+  assert.equal(payload.mindValue, "+89%");
+  assert.equal(payload.physicalWaves.length, 15);
+  assert.equal(payload.emotionalWaves.length, 15);
+  assert.equal(payload.intellectualWaves.length, 15);
   assert.equal(
-    isValidNativeReceiptFile({
-      uri: options.url,
-      size: 32_000,
-    }),
-    true,
+    payload.physicalWaves.at(-1),
+    expectedWaves.at(-1).physical,
   );
   assert.equal(
-    isValidNativeReceiptFile({
-      uri: options.url,
-      size: 500,
-    }),
-    false,
+    payload.emotionalWaves.at(-1),
+    expectedWaves.at(-1).emotional,
   );
   assert.equal(
-    isValidAndroidReceiptBlob({
-      type: "image/jpeg",
-      size: 32_000,
-    }),
-    true,
+    payload.intellectualWaves.at(-1),
+    expectedWaves.at(-1).intellectual,
   );
-  assert.equal(
-    isValidAndroidReceiptBlob({
-      type: "image/png",
-      size: 32_000,
-    }),
-    false,
-  );
-  assert.equal(isCanceledShare(new Error("Share canceled")), true);
+  assert.match(payload.dialogTitle, /共有/);
 });

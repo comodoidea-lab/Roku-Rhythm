@@ -39,7 +39,6 @@ export default function App() {
   const [sharing, setSharing] = useState(false);
   const skipNextSettingsSave = useRef(false);
   const sharingRef = useRef(false);
-  const shareCanceledRef = useRef(false);
   const dailyReminderSupported = supportsDailyReminder();
 
   useEffect(() => {
@@ -156,7 +155,6 @@ export default function App() {
     if (sharingRef.current) return;
 
     sharingRef.current = true;
-    shareCanceledRef.current = false;
     setSharing(true);
     setShareMessage("共有画像を作成しています…");
 
@@ -178,16 +176,6 @@ export default function App() {
               });
             });
           },
-          beforeNativeShare: async () => {
-            if (shareCanceledRef.current) {
-              throw new Error("sharing-canceled");
-            }
-
-            setReceiptOpen(false);
-            await new Promise((resolve) => {
-              window.requestAnimationFrame(() => resolve());
-            });
-          },
         },
       );
       setShareMessage(
@@ -196,12 +184,10 @@ export default function App() {
           : "画像の共有画面を開きました。",
       );
     } catch (error) {
-      if (error?.message !== "sharing-canceled") {
-        console.error("Failed to share the Roku Rhythm receipt.", error);
-        setShareMessage(
-          "画像を共有できませんでした。もう一度お試しください。",
-        );
-      }
+      console.error("Failed to share the Roku Rhythm receipt.", error);
+      setShareMessage(
+        "画像を共有できませんでした。もう一度お試しください。",
+      );
     } finally {
       sharingRef.current = false;
       setSharing(false);
@@ -209,13 +195,11 @@ export default function App() {
   }
 
   function handleOpenReceipt() {
-    shareCanceledRef.current = false;
     setShareMessage("");
     setReceiptOpen(true);
   }
 
   function handleCloseReceipt() {
-    shareCanceledRef.current = true;
     setReceiptOpen(false);
   }
 

@@ -4,13 +4,11 @@ import { Share } from "@capacitor/share";
 import { format } from "date-fns";
 import { getAssessment } from "./biorhythm.js";
 import {
-  createNativeReceiptFilename,
+  buildReceiptModel,
   createReceiptFilename,
 } from "./receipt.js";
-import {
-  renderAndroidReceiptJpeg,
-  renderReceiptPng,
-} from "./receiptImage.js";
+import NativeReceiptShare from "./nativeReceiptShare.js";
+import { renderReceiptPng } from "./receiptImage.js";
 
 function formatBiorhythmLine(label, value) {
   const rounded = Math.round(value);
@@ -58,12 +56,6 @@ function downloadBlob(blob, filename) {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-function wait(milliseconds) {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, milliseconds);
-  });
-}
-
 function withTimeout(promise, milliseconds, errorMessage) {
   let timeoutId;
   const timeout = new Promise((_, reject) => {
@@ -77,106 +69,45 @@ function withTimeout(promise, milliseconds, errorMessage) {
   });
 }
 
-export function isCanceledShare(error) {
-  return String(error?.message || error).toLowerCase().includes("canceled");
-}
+export function buildNativeAndroidReceiptPayload(result, text) {
+  const model = buildReceiptModel(result);
+  const metrics = Object.fromEntries(
+    model.metrics.map((metric) => [metric.key, metric]),
+  );
 
-export function buildAndroidShareOptions({ result, text, uri }) {
   return {
     title: `Roku Rhythm｜${format(result.date, "M月d日")}の六曜とバイオリズム`,
     text,
-    url: uri,
     dialogTitle: "結果を共有",
+    formattedDate: model.formattedDate,
+    rokuyo: model.rokuyo,
+    comment: model.comment,
+    bodyValue: metrics.physical.formattedValue,
+    bodyAssessment: metrics.physical.assessment,
+    emotionValue: metrics.emotional.formattedValue,
+    emotionAssessment: metrics.emotional.assessment,
+    mindValue: metrics.intellectual.formattedValue,
+    mindAssessment: metrics.intellectual.assessment,
+    physicalWaves: model.waves.map((entry) => entry.physical),
+    emotionalWaves: model.waves.map((entry) => entry.emotional),
+    intellectualWaves: model.waves.map((entry) => entry.intellectual),
   };
-}
-
-export function isValidNativeReceiptFile({ uri, size }) {
-  return uri.startsWith("file:") && size >= 10_000;
-}
-
-export function isValidAndroidReceiptBlob({ type, size }) {
-  return type === "image/jpeg" && size >= 10_000;
 }
 
 async function shareAndroidReceipt({
   result,
   text,
   beforeImagePreparation,
-  beforeNativeShare,
 }) {
   await beforeImagePreparation?.();
 
-  const { writeResult, fileInfo } = await withTimeout(
-    (async () => {
-      const image = await renderAndroidReceiptJpeg(result);
-
-      if (
-        !isValidAndroidReceiptBlob({
-          type: image.type,
-          size: image.size,
-        })
-      ) {
-        throw new Error("receipt-image-invalid");
-      }
-
-      const base64 = await blobToBase64(image);
-      const filename = createNativeReceiptFilename(
-        result.date,
-        Date.now().toString(36),
-        "jpg",
-      );
-      const nextWriteResult = await Filesystem.writeFile({
-        path: filename,
-        directory: Directory.Cache,
-        data: base64,
-      });
-      const nextFileInfo = await Filesystem.stat({
-        path: filename,
-        directory: Directory.Cache,
-      });
-
-      return {
-        writeResult: nextWriteResult,
-        fileInfo: nextFileInfo,
-      };
-    })(),
-    10_000,
-    "receipt-preparation-timeout",
+  await withTimeout(
+    NativeReceiptShare.share(
+      buildNativeAndroidReceiptPayload(result, text),
+    ),
+    15_000,
+    "native-receipt-share-timeout",
   );
-
-  if (
-    !isValidNativeReceiptFile({
-      uri: writeResult.uri,
-      size: fileInfo.size,
-    })
-  ) {
-    throw new Error("receipt-image-invalid");
-  }
-
-  await beforeNativeShare?.();
-
-  const shareAttempt = Share.share(
-    buildAndroidShareOptions({
-      result,
-      text,
-      uri: writeResult.uri,
-    }),
-  ).then(
-    () => ({ status: "completed" }),
-    (error) => ({ status: "error", error }),
-  );
-
-  const immediateResult = await Promise.race([
-    shareAttempt,
-    wait(900).then(() => ({ status: "presented" })),
-  ]);
-
-  if (
-    immediateResult.status === "error" &&
-    !isCanceledShare(immediateResult.error)
-  ) {
-    throw immediateResult.error;
-  }
 
   return "shared-image";
 }
@@ -190,7 +121,6 @@ export async function shareResult(result, options = {}) {
       result,
       text,
       beforeImagePreparation: options.beforeImagePreparation,
-      beforeNativeShare: options.beforeNativeShare,
     });
   }
 
