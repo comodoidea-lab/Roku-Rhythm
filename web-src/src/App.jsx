@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
-import { Share2 } from "lucide-react";
+import { ChevronRight, LoaderCircle, Share2 } from "lucide-react";
 import BiorhythmChart from "./components/BiorhythmChart";
 import BiorhythmTable from "./components/BiorhythmTable";
 import Header from "./components/Header";
@@ -211,28 +211,49 @@ export default function App() {
                 <h2 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
                   {format(selectedDate, "M月d日")}の六曜: {rokuyo}
                 </h2>
-                <div className="mt-4 rounded-lg bg-gray-50 p-4 dark:bg-gray-700">
-                  <p className="text-gray-700 dark:text-gray-300">
+                <div className="mt-4 overflow-hidden rounded-xl border border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-700">
+                  <p className="p-4 text-base leading-relaxed text-gray-700 dark:text-gray-200">
                     {rokuyoComment}
                   </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleShare}
-                  disabled={sharing}
-                  className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg border border-blue-600 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-50 disabled:cursor-wait disabled:opacity-60 dark:border-blue-400 dark:text-blue-300 dark:hover:bg-gray-700"
-                >
-                  <Share2 className="mr-2" size={18} aria-hidden="true" />
-                  {sharing ? "共有を準備中…" : "この結果を共有"}
-                </button>
-                {shareMessage ? (
-                  <p
-                    className="mt-2 text-sm text-gray-600 dark:text-gray-300"
-                    aria-live="polite"
+                  <button
+                    type="button"
+                    onClick={handleShare}
+                    disabled={sharing}
+                    aria-label="この日のリズムをシェア"
+                    className="group flex min-h-16 w-full touch-manipulation items-center gap-3 border-t border-indigo-100 bg-gradient-to-r from-indigo-50 to-blue-50 px-4 py-3 text-left transition-colors hover:from-indigo-100 hover:to-blue-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 disabled:cursor-wait disabled:opacity-70 dark:border-indigo-400/20 dark:from-indigo-500/15 dark:to-blue-500/10 dark:hover:from-indigo-500/25 dark:hover:to-blue-500/20"
                   >
-                    {shareMessage}
-                  </p>
-                ) : null}
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-sm shadow-indigo-200 dark:shadow-none">
+                      <Share2 size={20} aria-hidden="true" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold text-indigo-950 dark:text-indigo-100">
+                        {sharing
+                          ? "共有を準備しています"
+                          : "この日のリズムをシェア"}
+                      </span>
+                      <span
+                        className="mt-0.5 block text-xs leading-relaxed text-indigo-700 dark:text-indigo-200"
+                        aria-live="polite"
+                      >
+                        {shareMessage ||
+                          "六曜と3つの波を、ひとまとめに"}
+                      </span>
+                    </span>
+                    {sharing ? (
+                      <LoaderCircle
+                        className="shrink-0 animate-spin text-indigo-600 dark:text-indigo-300"
+                        size={20}
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <ChevronRight
+                        className="shrink-0 text-indigo-400 transition-transform group-hover:translate-x-0.5 dark:text-indigo-300"
+                        size={20}
+                        aria-hidden="true"
+                      />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="mt-8">
