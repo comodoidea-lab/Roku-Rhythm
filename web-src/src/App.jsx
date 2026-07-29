@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
-import { ChevronRight, LoaderCircle, Share2 } from "lucide-react";
+import { ChevronRight, ReceiptText } from "lucide-react";
 import BiorhythmChart from "./components/BiorhythmChart";
 import BiorhythmTable from "./components/BiorhythmTable";
 import Header from "./components/Header";
 import LoginForm from "./components/LoginForm";
 import PrivacyPolicyModal from "./components/PrivacyPolicyModal";
+import ReceiptSheet from "./components/ReceiptSheet";
 import SettingsModal from "./components/SettingsModal";
 import { calculateBiorhythm } from "./lib/biorhythm";
 import { getRokuyo, toJapanTime } from "./lib/date";
@@ -29,6 +30,7 @@ export default function App() {
   const [selectedDate, setSelectedDate] = useState(toJapanTime());
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [receiptOpen, setReceiptOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [showDetailedStats, setShowDetailedStats] = useState(true);
   const [dailyReminder, setDailyReminder] = useState(false);
@@ -119,6 +121,7 @@ export default function App() {
     setShareMessage("");
     setSettingsOpen(false);
     setPrivacyOpen(false);
+    setReceiptOpen(false);
   }
 
   async function handleDailyReminderChange(enabled) {
@@ -154,16 +157,18 @@ export default function App() {
     try {
       const result = await shareResult({
         date: selectedDate,
+        birthDate: new Date(birthDate),
         rokuyo,
         comment: rokuyoComment,
         biorhythm,
       });
       setShareMessage(
-        result === "copied"
-          ? "結果をクリップボードにコピーしました。"
-          : "共有画面を開きました。",
+        result === "downloaded"
+          ? "PNGを保存し、共有文をコピーしました。"
+          : "画像の共有画面を開きました。",
       );
-    } catch {
+    } catch (error) {
+      console.error("Failed to share the Roku Rhythm receipt.", error);
       setShareMessage("この端末では結果を共有できませんでした。");
     } finally {
       setSharing(false);
@@ -217,41 +222,31 @@ export default function App() {
                   </p>
                   <button
                     type="button"
-                    onClick={handleShare}
-                    disabled={sharing}
-                    aria-label="この日のリズムをシェア"
+                    onClick={() => {
+                      setShareMessage("");
+                      setReceiptOpen(true);
+                    }}
+                    aria-label="今日の六曜レシートを開く"
                     className="group flex min-h-16 w-full touch-manipulation items-center gap-3 border-t border-indigo-100 bg-gradient-to-r from-indigo-50 to-blue-50 px-4 py-3 text-left transition-colors hover:from-indigo-100 hover:to-blue-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 disabled:cursor-wait disabled:opacity-70 dark:border-indigo-400/20 dark:from-indigo-500/15 dark:to-blue-500/10 dark:hover:from-indigo-500/25 dark:hover:to-blue-500/20"
                   >
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-sm shadow-indigo-200 dark:shadow-none">
-                      <Share2 size={20} aria-hidden="true" />
+                      <ReceiptText size={20} aria-hidden="true" />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block text-sm font-semibold text-indigo-950 dark:text-indigo-100">
-                        {sharing
-                          ? "共有を準備しています"
-                          : "この日のリズムをシェア"}
+                        今日の六曜レシート
                       </span>
                       <span
                         className="mt-0.5 block text-xs leading-relaxed text-indigo-700 dark:text-indigo-200"
-                        aria-live="polite"
                       >
-                        {shareMessage ||
-                          "六曜と3つの波を、ひとまとめに"}
+                        六曜と3つの波を、1枚の画像に
                       </span>
                     </span>
-                    {sharing ? (
-                      <LoaderCircle
-                        className="shrink-0 animate-spin text-indigo-600 dark:text-indigo-300"
-                        size={20}
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      <ChevronRight
-                        className="shrink-0 text-indigo-400 transition-transform group-hover:translate-x-0.5 dark:text-indigo-300"
-                        size={20}
-                        aria-hidden="true"
-                      />
-                    )}
+                    <ChevronRight
+                      className="shrink-0 text-indigo-400 transition-transform group-hover:translate-x-0.5 dark:text-indigo-300"
+                      size={20}
+                      aria-hidden="true"
+                    />
                   </button>
                 </div>
               </div>
@@ -299,6 +294,27 @@ export default function App() {
         <PrivacyPolicyModal
           isOpen={privacyOpen}
           onClose={() => setPrivacyOpen(false)}
+        />
+
+        <ReceiptSheet
+          isOpen={receiptOpen}
+          onClose={() => {
+            if (!sharing) setReceiptOpen(false);
+          }}
+          onShare={handleShare}
+          sharing={sharing}
+          shareMessage={shareMessage}
+          result={
+            birthDate
+              ? {
+                  date: selectedDate,
+                  birthDate: new Date(birthDate),
+                  rokuyo,
+                  comment: rokuyoComment,
+                  biorhythm,
+                }
+              : null
+          }
         />
       </main>
     </div>

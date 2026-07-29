@@ -1,6 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildShareText } from "../src/lib/share.js";
+import {
+  buildReceiptWaveData,
+  createReceiptFilename,
+  formatSignedPercent,
+} from "../src/lib/receipt.js";
 
 test("share text contains the date, advice, assessments, and rounded values", () => {
   const text = buildShareText({
@@ -22,4 +27,30 @@ test("share text contains the date, advice, assessments, and rounded values", ()
   assert.match(text, /知性　\+89%（とても高い）/);
   assert.match(text, /#RokuRhythm #六曜 #バイオリズム/);
   assert.match(text, /娯楽情報/);
+});
+
+test("receipt helpers format signed values and a stable PNG filename", () => {
+  assert.equal(formatSignedPercent(22.4), "+22%");
+  assert.equal(formatSignedPercent(-45.6), "-46%");
+  assert.equal(formatSignedPercent(0), "0%");
+  assert.equal(
+    createReceiptFilename(new Date(2026, 6, 29)),
+    "roku-rhythm-2026-07-29.png",
+  );
+});
+
+test("receipt wave data ends on the selected date and uses real biorhythm values", () => {
+  const date = new Date(2026, 6, 29);
+  const waves = buildReceiptWaveData({
+    birthDate: new Date(1975, 0, 9),
+    date,
+  });
+
+  assert.equal(waves.length, 15);
+  assert.equal(waves.filter((entry) => entry.current).length, 1);
+  assert.equal(waves[14].current, true);
+  assert.equal(waves[14].date.getTime(), date.getTime());
+  assert.equal(typeof waves[14].physical, "number");
+  assert.equal(typeof waves[14].emotional, "number");
+  assert.equal(typeof waves[14].intellectual, "number");
 });
