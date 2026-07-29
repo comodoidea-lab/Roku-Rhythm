@@ -1,7 +1,6 @@
 package com.comodoidealab.rokurhythm;
 
 import android.content.ClipData;
-import android.content.ClipDescription;
 import android.content.Intent;
 import android.net.Uri;
 import androidx.core.content.FileProvider;
@@ -69,27 +68,11 @@ public class NativeReceiptSharePlugin extends Plugin {
                 );
 
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                shareIntent.setType("image/*");
+                shareIntent.setType("image/jpeg");
                 shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
                 shareIntent.putExtra(Intent.EXTRA_SUBJECT, title);
-                shareIntent.putExtra(Intent.EXTRA_TITLE, title);
                 shareIntent.putExtra(Intent.EXTRA_TEXT, text);
-
-                ClipData.Item shareItem = new ClipData.Item(
-                    text,
-                    null,
-                    null,
-                    contentUri
-                );
-                ClipData shareClip = new ClipData(
-                    "Roku Rhythm receipt",
-                    new String[] {
-                        "image/jpeg",
-                        ClipDescription.MIMETYPE_TEXT_PLAIN
-                    },
-                    shareItem
-                );
-                shareIntent.setClipData(shareClip);
+                shareIntent.setClipData(ClipData.newRawUri("Roku Rhythm receipt", contentUri));
                 shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
                 Intent chooser = Intent.createChooser(shareIntent, dialogTitle);
