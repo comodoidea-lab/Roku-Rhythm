@@ -10,7 +10,7 @@
 - プライバシーポリシー:
   `https://github.com/comodoidea-lab/Roku-Rhythm/blob/codex/native-app/web-src/PRIVACY.md`
 - サポート:
-  `https://github.com/comodoidea-lab/Roku-Rhythm/issues`
+  `https://github.com/comodoidea-lab/Roku-Rhythm/blob/codex/native-app/web-src/SUPPORT.md`
 
 端末内だけで処理するデータはAppleの「収集」には該当しない。ただし、今後
 解析SDK、広告、クラッシュ収集、外部APIなどを追加した場合は回答を見直す。

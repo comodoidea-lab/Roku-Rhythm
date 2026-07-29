@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 
 const SUPPORT_URL =
-  "https://github.com/comodoidea-lab/Roku-Rhythm/issues";
+  "https://github.com/comodoidea-lab/Roku-Rhythm/blob/codex/native-app/web-src/SUPPORT.md";
 
 export default function PrivacyPolicyModal({ isOpen, onClose }) {
   if (!isOpen) return null;
