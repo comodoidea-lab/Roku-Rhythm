@@ -12,7 +12,21 @@ const PAPER = {
 function loadImage(src) {
   return new Promise((resolve, reject) => {
     const image = new Image();
-    image.onload = () => resolve(image);
+    image.decoding = "sync";
+    image.onload = async () => {
+      try {
+        if (typeof image.decode === "function") {
+          await image.decode();
+        }
+        resolve(image);
+      } catch (error) {
+        if (image.complete && image.naturalWidth > 0) {
+          resolve(image);
+        } else {
+          reject(error);
+        }
+      }
+    };
     image.onerror = reject;
     image.src = src;
   });
@@ -210,7 +224,7 @@ function drawWaves(context, model) {
   });
 }
 
-export async function renderReceiptPng(result) {
+async function renderReceiptCanvas(result) {
   const model = buildReceiptModel(result);
   const canvas = document.createElement("canvas");
   canvas.width = WIDTH;
@@ -329,10 +343,44 @@ export async function renderReceiptPng(result) {
     "#17165d",
   );
 
+  const cornerPixel = context.getImageData(8, 8, 1, 1).data;
+  const cornerIsBlank =
+    cornerPixel[3] === 0 ||
+    (cornerPixel[0] > 248 &&
+      cornerPixel[1] > 248 &&
+      cornerPixel[2] > 248);
+
+  if (cornerIsBlank) {
+    throw new Error("receipt-canvas-blank");
+  }
+
+  return canvas;
+}
+
+export async function renderReceiptPng(result) {
+  const canvas = await renderReceiptCanvas(result);
+
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {
       if (blob) resolve(blob);
       else reject(new Error("receipt-image-creation-failed"));
     }, "image/png");
   });
+}
+
+export async function renderReceiptPngBase64(result) {
+  const canvas = await renderReceiptCanvas(result);
+
+  await new Promise((resolve) => {
+    window.requestAnimationFrame(() => resolve());
+  });
+
+  const dataUrl = canvas.toDataURL("image/png");
+  const base64 = dataUrl.split(",")[1];
+
+  if (!base64 || base64.length < 16_000) {
+    throw new Error("receipt-image-empty");
+  }
+
+  return base64;
 }

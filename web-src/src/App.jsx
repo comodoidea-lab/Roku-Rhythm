@@ -38,6 +38,8 @@ export default function App() {
   const [shareMessage, setShareMessage] = useState("");
   const [sharing, setSharing] = useState(false);
   const skipNextSettingsSave = useRef(false);
+  const sharingRef = useRef(false);
+  const shareCanceledRef = useRef(false);
   const dailyReminderSupported = supportsDailyReminder();
 
   useEffect(() => {
@@ -151,28 +153,62 @@ export default function App() {
   }
 
   async function handleShare() {
+    if (sharingRef.current) return;
+
+    sharingRef.current = true;
+    shareCanceledRef.current = false;
     setSharing(true);
     setShareMessage("");
 
     try {
-      const result = await shareResult({
-        date: selectedDate,
-        birthDate: new Date(birthDate),
-        rokuyo,
-        comment: rokuyoComment,
-        biorhythm,
-      });
+      const result = await shareResult(
+        {
+          date: selectedDate,
+          birthDate: new Date(birthDate),
+          rokuyo,
+          comment: rokuyoComment,
+          biorhythm,
+        },
+        {
+          beforeNativeShare: async () => {
+            if (shareCanceledRef.current) {
+              throw new Error("sharing-canceled");
+            }
+
+            setReceiptOpen(false);
+            await new Promise((resolve) => {
+              window.requestAnimationFrame(() => resolve());
+            });
+          },
+        },
+      );
       setShareMessage(
         result === "downloaded"
           ? "PNGを保存し、共有文をコピーしました。"
           : "画像の共有画面を開きました。",
       );
     } catch (error) {
-      console.error("Failed to share the Roku Rhythm receipt.", error);
-      setShareMessage("この端末では結果を共有できませんでした。");
+      if (error?.message !== "sharing-canceled") {
+        console.error("Failed to share the Roku Rhythm receipt.", error);
+        setShareMessage(
+          "画像を共有できませんでした。もう一度お試しください。",
+        );
+      }
     } finally {
+      sharingRef.current = false;
       setSharing(false);
     }
+  }
+
+  function handleOpenReceipt() {
+    shareCanceledRef.current = false;
+    setShareMessage("");
+    setReceiptOpen(true);
+  }
+
+  function handleCloseReceipt() {
+    shareCanceledRef.current = true;
+    setReceiptOpen(false);
   }
 
   const rokuyo = getRokuyo(selectedDate);
@@ -222,10 +258,7 @@ export default function App() {
                   </p>
                   <button
                     type="button"
-                    onClick={() => {
-                      setShareMessage("");
-                      setReceiptOpen(true);
-                    }}
+                    onClick={handleOpenReceipt}
                     aria-label="今日の六曜レシートを開く"
                     className="group flex min-h-16 w-full touch-manipulation items-center gap-3 border-t border-indigo-100 bg-gradient-to-r from-indigo-50 to-blue-50 px-4 py-3 text-left transition-colors hover:from-indigo-100 hover:to-blue-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 disabled:cursor-wait disabled:opacity-70 dark:border-indigo-400/20 dark:from-indigo-500/15 dark:to-blue-500/10 dark:hover:from-indigo-500/25 dark:hover:to-blue-500/20"
                   >
@@ -238,8 +271,9 @@ export default function App() {
                       </span>
                       <span
                         className="mt-0.5 block text-xs leading-relaxed text-indigo-700 dark:text-indigo-200"
+                        aria-live="polite"
                       >
-                        六曜と3つの波を、1枚の画像に
+                        {shareMessage || "六曜と3つの波を、1枚の画像に"}
                       </span>
                     </span>
                     <ChevronRight
@@ -298,9 +332,7 @@ export default function App() {
 
         <ReceiptSheet
           isOpen={receiptOpen}
-          onClose={() => {
-            if (!sharing) setReceiptOpen(false);
-          }}
+          onClose={handleCloseReceipt}
           onShare={handleShare}
           sharing={sharing}
           shareMessage={shareMessage}

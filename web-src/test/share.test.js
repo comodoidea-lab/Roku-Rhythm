@@ -1,8 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildShareText } from "../src/lib/share.js";
+import {
+  buildAndroidShareOptions,
+  buildShareText,
+  isCanceledShare,
+  isValidNativeReceiptFile,
+} from "../src/lib/share.js";
 import {
   buildReceiptWaveData,
+  createNativeReceiptFilename,
   createReceiptFilename,
   formatSignedPercent,
 } from "../src/lib/receipt.js";
@@ -37,6 +43,10 @@ test("receipt helpers format signed values and a stable PNG filename", () => {
     createReceiptFilename(new Date(2026, 6, 29)),
     "roku-rhythm-2026-07-29.png",
   );
+  assert.equal(
+    createNativeReceiptFilename(new Date(2026, 6, 29), "android-test"),
+    "roku-rhythm-2026-07-29-android-test.png",
+  );
 });
 
 test("receipt wave data ends on the selected date and uses real biorhythm values", () => {
@@ -53,4 +63,31 @@ test("receipt wave data ends on the selected date and uses real biorhythm values
   assert.equal(typeof waves[14].physical, "number");
   assert.equal(typeof waves[14].emotional, "number");
   assert.equal(typeof waves[14].intellectual, "number");
+});
+
+test("Android shares one verified cache image as a URL", () => {
+  const options = buildAndroidShareOptions({
+    result: { date: new Date(2026, 6, 29) },
+    text: "share text",
+    uri: "file:///cache/roku-rhythm-android-test.png",
+  });
+
+  assert.equal(options.url, "file:///cache/roku-rhythm-android-test.png");
+  assert.equal(options.text, "share text");
+  assert.equal("files" in options, false);
+  assert.equal(
+    isValidNativeReceiptFile({
+      uri: options.url,
+      size: 32_000,
+    }),
+    true,
+  );
+  assert.equal(
+    isValidNativeReceiptFile({
+      uri: options.url,
+      size: 500,
+    }),
+    false,
+  );
+  assert.equal(isCanceledShare(new Error("Share canceled")), true);
 });
