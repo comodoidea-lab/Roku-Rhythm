@@ -1,3 +1,411 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    "Hiragino Sans", "Yu Gothic UI", sans-serif;
+  color: #111827;
+  background: #eef1f7;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-width: 320px;
+  background: #eef1f7;
+  overscroll-behavior-y: none;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.roku-app {
+  --page-bg: #f5f6f9;
+  --surface: rgba(255, 255, 255, 0.96);
+  --surface-soft: #f7f7fb;
+  --line: rgba(71, 85, 105, 0.13);
+  --text: #111827;
+  --muted: #667085;
+  --accent: #5b38ff;
+  min-height: 100vh;
+  background: var(--page-bg);
+  color: var(--text);
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.roku-app.dark {
+  --page-bg: #0d1425;
+  --surface: rgba(27, 38, 57, 0.97);
+  --surface-soft: rgba(45, 59, 82, 0.72);
+  --line: rgba(226, 232, 240, 0.12);
+  --text: #f8fafc;
+  --muted: #b3bfd0;
+  --accent: #8e75ff;
+}
+
+.app-shell {
+  width: 100%;
+  max-width: 46rem;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--page-bg);
+}
+
+.app-hero {
+  position: relative;
+  min-height: 15.5rem;
+  overflow: hidden;
+  isolation: isolate;
+  color: #10152e;
+  background-color: #6bbef0;
+  background-position: center;
+  background-size: cover;
+}
+
+.app-hero--morning {
+  background-image: url("/assets/header/morning.png");
+  background-position: center 43%;
+}
+
+.app-hero--day {
+  background-image: url("/assets/header/day.png");
+  background-position: center 46%;
+}
+
+.app-hero--evening {
+  background-image: url("/assets/header/evening.png");
+  background-position: center 50%;
+}
+
+.app-hero--night {
+  color: #fff;
+  background-image: url("/assets/header/night.png");
+  background-position: 0% 34%;
+}
+
+.app-hero-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(23, 18, 64, 0.02) 52%,
+    rgba(25, 17, 74, 0.15) 100%
+  );
+  pointer-events: none;
+}
+
+.app-hero--night .app-hero-shade {
+  background: linear-gradient(
+    180deg,
+    rgba(3, 8, 28, 0.08) 0%,
+    rgba(3, 8, 28, 0.02) 50%,
+    rgba(3, 8, 28, 0.26) 100%
+  );
+}
+
+.app-hero-content {
+  position: relative;
+  display: flex;
+  min-height: 15.5rem;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: calc(env(safe-area-inset-top, 0px) + 1.15rem)
+    max(1.25rem, env(safe-area-inset-right, 0px)) 3.15rem
+    max(1.25rem, env(safe-area-inset-left, 0px));
+}
+
+.app-brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.app-brand {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.app-brand-icon {
+  width: 3rem;
+  height: 3rem;
+  flex: 0 0 auto;
+  border-radius: 0.9rem;
+  box-shadow: 0 8px 22px rgba(21, 22, 84, 0.24);
+}
+
+.app-title {
+  margin: 0;
+  font-size: clamp(1.45rem, 5.8vw, 2rem);
+  font-weight: 780;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+.app-subtitle {
+  margin: 0.34rem 0 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  opacity: 0.78;
+}
+
+.app-settings-button {
+  display: inline-flex;
+  width: 2.8rem;
+  height: 2.8rem;
+  flex: 0 0 auto;
+  touch-action: manipulation;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.76);
+  color: currentColor;
+  box-shadow: 0 8px 24px rgba(28, 35, 78, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: transform 150ms ease, background-color 150ms ease;
+}
+
+.app-settings-button:active {
+  transform: scale(0.96);
+}
+
+.app-settings-button:focus-visible {
+  outline: 3px solid rgba(91, 56, 255, 0.4);
+  outline-offset: 2px;
+}
+
+.app-hero--night .app-settings-button {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(9, 15, 48, 0.52);
+}
+
+.app-profile-summary,
+.app-hero-intro {
+  width: fit-content;
+  max-width: min(22rem, 80%);
+  margin: 1.35rem 0 0;
+  text-shadow: 0 1px 12px rgba(255, 255, 255, 0.32);
+}
+
+.app-hero--night .app-profile-summary,
+.app-hero--night .app-hero-intro {
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
+}
+
+.app-profile-name {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 740;
+}
+
+.app-profile-birthday,
+.app-hero-intro {
+  margin: 0.24rem 0 0;
+  font-size: 0.76rem;
+  font-weight: 600;
+  opacity: 0.88;
+}
+
+.app-content {
+  position: relative;
+  z-index: 2;
+  margin-top: -1.45rem;
+  padding: 0 max(0.9rem, env(safe-area-inset-right, 0px))
+    calc(env(safe-area-inset-bottom, 0px) + 1.5rem)
+    max(0.9rem, env(safe-area-inset-left, 0px));
+}
+
+.result-card {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.66);
+  border-radius: 1.55rem;
+  background: var(--surface);
+  box-shadow: 0 18px 42px rgba(35, 46, 75, 0.16),
+    0 2px 8px rgba(35, 46, 75, 0.06);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+.dark .result-card {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.3);
+}
+
+.result-summary {
+  padding: 1.2rem 1.15rem 0;
+  text-align: center;
+}
+
+.result-title {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(1.15rem, 4.8vw, 1.45rem);
+  font-weight: 760;
+  line-height: 1.35;
+  letter-spacing: -0.025em;
+}
+
+.result-message-card {
+  margin-top: 0.8rem;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--surface-soft);
+}
+
+.result-message {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.receipt-entry {
+  display: flex;
+  width: 100%;
+  min-height: 4.3rem;
+  touch-action: manipulation;
+  align-items: center;
+  gap: 0.78rem;
+  border: 0;
+  border-top: 1px solid rgba(91, 56, 255, 0.13);
+  background: linear-gradient(100deg, rgba(91, 56, 255, 0.1), rgba(78, 201, 255, 0.09));
+  padding: 0.75rem 0.9rem;
+  text-align: left;
+  transition: background-color 150ms ease;
+}
+
+.receipt-entry:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.receipt-entry-icon {
+  display: inline-flex;
+  width: 2.65rem;
+  height: 2.65rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.78rem;
+  background: linear-gradient(145deg, #5b38ff, #8a38ea);
+  color: #fff;
+  box-shadow: 0 7px 18px rgba(91, 56, 255, 0.24);
+}
+
+.receipt-entry-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.receipt-entry-title {
+  display: block;
+  color: var(--text);
+  font-size: 0.86rem;
+  font-weight: 720;
+}
+
+.receipt-entry-subtitle {
+  display: block;
+  margin-top: 0.14rem;
+  overflow: hidden;
+  color: #6352b9;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dark .receipt-entry-subtitle {
+  color: #c1b8ff;
+}
+
+.receipt-entry-chevron {
+  flex: 0 0 auto;
+  color: #7962ef;
+  transition: transform 150ms ease;
+}
+
+.receipt-entry:hover .receipt-entry-chevron {
+  transform: translateX(2px);
+}
+
+.biorhythm-section {
+  padding: 1.25rem 1.15rem 1.1rem;
+}
+
+.biorhythm-section-title {
+  margin: 0 0 0.7rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 760;
+}
+
+.dark .result-card table thead th,
+.dark .result-card table td.text-gray-500,
+.dark .result-card table td.text-gray-600 {
+  color: #d6deea;
+}
+
+.dark .result-card table tr {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.app-disclaimer {
+  margin: 1.1rem 0 0;
+  padding: 0 0.55rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.55;
+  text-align: center;
+}
+
+@media (min-width: 47rem) {
+  .roku-app {
+    padding: 1.5rem 0;
+  }
+
+  .app-shell {
+    min-height: calc(100vh - 3rem);
+    border-radius: 2rem;
+    box-shadow: 0 28px 80px rgba(34, 45, 76, 0.18);
+  }
+
+  .app-hero-content {
+    padding-right: 2rem;
+    padding-left: 2rem;
+  }
+
+  .app-content {
+    padding-right: 1.4rem;
+    padding-left: 1.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

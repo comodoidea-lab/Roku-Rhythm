@@ -1,30 +1,75 @@
+import { useEffect, useMemo, useState } from "react";
 import { Settings } from "lucide-react";
 
-export default function Header({ onOpenSettings }) {
+const HERO_COLORS = {
+  morning: "#a997c8",
+  day: "#67bbed",
+  evening: "#da708e",
+  night: "#080e2c",
+};
+
+function getPeriod(date) {
+  const hour = date.getHours();
+
+  if (hour >= 5 && hour < 9) return "morning";
+  if (hour >= 9 && hour < 16) return "day";
+  if (hour >= 16 && hour < 19) return "evening";
+  return "night";
+}
+
+export default function Header({ name, birthDate, onOpenSettings }) {
+  const [now, setNow] = useState(() => new Date());
+  const period = useMemo(() => getPeriod(now), [now]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const themeColor = document.querySelector('meta[name="theme-color"]');
+    themeColor?.setAttribute("content", HERO_COLORS[period]);
+  }, [period]);
+
   return (
-    <header className="app-header mb-8 flex flex-col items-center">
-      <div className="relative flex w-full items-center justify-center px-14">
-        <h1 className="app-title flex items-center whitespace-nowrap text-4xl font-bold text-gray-900 dark:text-white">
-          <img
-            src="/favicon.svg"
-            alt=""
-            className="app-title-logo mr-2 rounded-2xl"
-            aria-hidden="true"
-          />
-          Roku Rhythm
-        </h1>
-        <button
-          type="button"
-          aria-label="設定を開く"
-          onClick={onOpenSettings}
-          className="app-settings-button absolute right-0 top-1/2 inline-flex min-h-12 min-w-12 -translate-y-1/2 touch-manipulation items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:focus:ring-offset-gray-900"
-        >
-          <Settings size={26} aria-hidden="true" />
-        </button>
+    <header className={`app-hero app-hero--${period}`}>
+      <div className="app-hero-shade" aria-hidden="true" />
+      <div className="app-hero-content">
+        <div className="app-brand-row">
+          <div className="app-brand">
+            <img
+              src="/assets/brand/app-icon-1024.png"
+              alt=""
+              className="app-brand-icon"
+              aria-hidden="true"
+            />
+            <div>
+              <h1 className="app-title">Roku Rhythm</h1>
+              <p className="app-subtitle">六曜とバイオリズム</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            aria-label="設定を開く"
+            onClick={onOpenSettings}
+            className="app-settings-button"
+          >
+            <Settings size={22} aria-hidden="true" />
+          </button>
+        </div>
+
+        {birthDate ? (
+          <div className="app-profile-summary">
+            {name ? <p className="app-profile-name">{name}さん</p> : null}
+            <p className="app-profile-birthday">
+              生年月日: {new Date(birthDate).toLocaleDateString("ja-JP")}
+            </p>
+          </div>
+        ) : (
+          <p className="app-hero-intro">今日の六曜と、3つのリズムを確認</p>
+        )}
       </div>
-      <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-        六曜とバイオリズム
-      </p>
     </header>
   );
 }
