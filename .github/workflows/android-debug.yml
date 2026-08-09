@@ -1,4 +1,4 @@
-name: Android debug APK
+name: Android signed APK
 
 on:
   workflow_dispatch:
@@ -13,17 +13,25 @@ permissions:
   contents: read
 
 concurrency:
-  group: android-debug-${{ github.ref }}
+  group: android-signed-apk-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build-debug-apk:
+  build-signed-apk:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
     defaults:
       run:
         working-directory: web-src
+
+    env:
+      ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/roku-rhythm-upload.p12
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      ANDROID_VERSION_CODE: ${{ github.run_number }}
+      ANDROID_VERSION_NAME: 1.0.${{ github.run_number }}
 
     steps:
       - name: Check out repository
@@ -40,6 +48,32 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      - name: Validate signing secrets
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          missing=0
+          for variable in \
+            ANDROID_KEYSTORE_BASE64 \
+            ANDROID_KEYSTORE_PASSWORD \
+            ANDROID_KEY_ALIAS \
+            ANDROID_KEY_PASSWORD
+          do
+            if [[ -z "${!variable:-}" ]]; then
+              echo "::error::Missing repository secret: ${variable}"
+              missing=1
+            fi
+          done
+          exit "${missing}"
+
+      - name: Restore upload keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          printf '%s' "${ANDROID_KEYSTORE_BASE64}" \
+            | base64 --decode > "${ANDROID_KEYSTORE_PATH}"
+          chmod 600 "${ANDROID_KEYSTORE_PATH}"
+
       - name: Install dependencies
         run: npm ci
 
@@ -49,14 +83,18 @@ jobs:
       - name: Sync Android project
         run: npx cap sync android
 
-      - name: Build debug APK
-        run: ./android/gradlew -p android assembleDebug --no-daemon
+      - name: Build signed release APK
+        run: ./android/gradlew -p android assembleRelease --no-daemon
 
-      - name: Upload debug APK
+      - name: Upload signed APK
         uses: actions/upload-artifact@v6
         with:
-          name: roku-rhythm-debug-apk
-          path: web-src/android/app/build/outputs/apk/debug/app-debug.apk
+          name: roku-rhythm-signed-apk
+          path: web-src/android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
           retention-days: 1
           compression-level: 0
+
+      - name: Remove restored upload keystore
+        if: always()
+        run: rm -f "${ANDROID_KEYSTORE_PATH}"
