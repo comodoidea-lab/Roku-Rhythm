@@ -3,7 +3,7 @@ name: iOS iPad verification
 on:
   push:
     branches:
-      - agent/ipad-simulator-verification
+      - agent/ipad-native-verification
   workflow_dispatch:
 
 permissions:
