@@ -20,4 +20,4 @@ Roku Rhythmは、入力されたニックネーム、生年月日、表示設定
 
 ## お問い合わせ
 
-[Roku Rhythm サポート](https://github.com/comodoidea-lab/Roku-Rhythm/blob/codex/native-app/web-src/SUPPORT.md)
+[info@comodoidea.com](mailto:info@comodoidea.com)

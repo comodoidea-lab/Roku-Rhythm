@@ -1,7 +1,8 @@
 import { X } from "lucide-react";
 
-const SUPPORT_URL =
-  "https://github.com/comodoidea-lab/Roku-Rhythm/blob/codex/native-app/web-src/SUPPORT.md";
+// Keep the in-app support destination independent of a development branch.
+// The public privacy-policy page is still a separate release gate.
+const SUPPORT_URL = "mailto:info@comodoidea.com";
 
 export default function PrivacyPolicyModal({ isOpen, onClose }) {
   if (!isOpen) return null;
