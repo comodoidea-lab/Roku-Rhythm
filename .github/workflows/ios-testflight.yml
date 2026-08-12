@@ -25,10 +25,10 @@ jobs:
         working-directory: web-src
     env:
       APP_BUNDLE_ID: com.comodoidealab.rokurhythm
-      ARCHIVE_PATH: ${{ github.workspace }}/web-src/RokuRhythm.xcarchive
-      EXPORT_PATH: ${{ github.workspace }}/web-src/testflight-export
-      KEYCHAIN_PATH: ${{ github.workspace }}/web-src/app-signing.keychain-db
-      PROFILE_PATH: ${{ github.workspace }}/web-src/RokuRhythm.mobileprovision
+      ARCHIVE_PATH: ${{ runner.temp }}/RokuRhythm.xcarchive
+      EXPORT_PATH: ${{ runner.temp }}/testflight-export
+      KEYCHAIN_PATH: ${{ runner.temp }}/app-signing.keychain-db
+      PROFILE_PATH: ${{ runner.temp }}/RokuRhythm.mobileprovision
 
     steps:
       - name: Check out repository
@@ -134,6 +134,7 @@ jobs:
             -archivePath "$ARCHIVE_PATH" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             PRODUCT_BUNDLE_IDENTIFIER="$APP_BUNDLE_ID" \
+            TARGETED_DEVICE_FAMILY=1 \
             CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution" \
