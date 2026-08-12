@@ -8,6 +8,11 @@ on:
         required: true
         default: true
         type: boolean
+      build_number:
+        description: App Store build number (must be greater than the current App Store build)
+        required: true
+        default: "10"
+        type: string
 
 permissions:
   contents: read
@@ -29,6 +34,7 @@ jobs:
       EXPORT_PATH: ${{ github.workspace }}/web-src/testflight-export
       KEYCHAIN_PATH: ${{ github.workspace }}/web-src/app-signing.keychain-db
       PROFILE_PATH: ${{ github.workspace }}/web-src/RokuRhythm.mobileprovision
+      BUILD_NUMBER: ${{ inputs.build_number }}
 
     steps:
       - name: Check out repository
@@ -58,6 +64,10 @@ jobs:
           UPLOAD_TO_TESTFLIGHT: ${{ inputs.upload_to_testflight }}
         run: |
           missing=0
+          if ! [[ "$BUILD_NUMBER" =~ ^[0-9]+$ ]] || [ "$BUILD_NUMBER" -le 6 ]; then
+            echo "::error::build_number must be numeric and greater than 6 (received: $BUILD_NUMBER)"
+            missing=1
+          fi
           for name in APPLE_TEAM_ID CERTIFICATE_BASE64 CERTIFICATE_PASSWORD PROFILE_BASE64; do
             if [ -z "${!name}" ]; then
               echo "::error::Required GitHub Actions secret is missing: $name"
@@ -135,11 +145,22 @@ jobs:
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             PRODUCT_BUNDLE_IDENTIFIER="$APP_BUNDLE_ID" \
             TARGETED_DEVICE_FAMILY=1 \
-            CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" \
             clean archive
+
+      - name: Verify archived build number
+        run: |
+          ARCHIVED_APP_PLIST="$ARCHIVE_PATH/Products/Applications/App.app/Info.plist"
+          test -f "$ARCHIVED_APP_PLIST"
+          ACTUAL_BUILD_NUMBER=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$ARCHIVED_APP_PLIST")
+          if [ "$ACTUAL_BUILD_NUMBER" != "$BUILD_NUMBER" ]; then
+            echo "::error::Archive CFBundleVersion=$ACTUAL_BUILD_NUMBER but expected $BUILD_NUMBER"
+            exit 1
+          fi
+          echo "Verified archive CFBundleVersion=$ACTUAL_BUILD_NUMBER"
 
       - name: Create App Store export options
         env:
@@ -165,9 +186,15 @@ jobs:
 
           IPA_PATH=$(find "$EXPORT_PATH" -maxdepth 1 -name '*.ipa' -print -quit)
           test -n "$IPA_PATH"
+          IPA_BUILD_NUMBER=$(unzip -p "$IPA_PATH" 'Payload/*.app/Info.plist' | plutil -extract CFBundleVersion raw -o - -)
+          if [ "$IPA_BUILD_NUMBER" != "$BUILD_NUMBER" ]; then
+            echo "::error::IPA CFBundleVersion=$IPA_BUILD_NUMBER but expected $BUILD_NUMBER"
+            exit 1
+          fi
+          echo "Verified IPA CFBundleVersion=$IPA_BUILD_NUMBER"
           mkdir -p testflight-output
-          cp "$IPA_PATH" "testflight-output/Roku-Rhythm-${GITHUB_RUN_NUMBER}.ipa"
-          shasum -a 256 "testflight-output/Roku-Rhythm-${GITHUB_RUN_NUMBER}.ipa" > "testflight-output/Roku-Rhythm-${GITHUB_RUN_NUMBER}.ipa.sha256"
+          cp "$IPA_PATH" "testflight-output/Roku-Rhythm-$BUILD_NUMBER.ipa"
+          shasum -a 256 "testflight-output/Roku-Rhythm-$BUILD_NUMBER.ipa" > "testflight-output/Roku-Rhythm-$BUILD_NUMBER.ipa.sha256"
           echo "IPA_PATH=$IPA_PATH" >> "$GITHUB_ENV"
 
       - name: Install App Store Connect API key
@@ -210,7 +237,7 @@ jobs:
       - name: Upload signed IPA artifact
         uses: actions/upload-artifact@v6
         with:
-          name: roku-rhythm-testflight-${{ github.run_number }}
+          name: roku-rhythm-testflight-${{ inputs.build_number }}
           path: |
             web-src/testflight-output/*.ipa
             web-src/testflight-output/*.sha256
