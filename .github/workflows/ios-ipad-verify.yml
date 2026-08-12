@@ -37,7 +37,7 @@ jobs:
           xcodebuild -version
           xcode-select -p
           xcrun simctl list runtimes available
-          xcrun simctl list devicetypes | grep -E "iPad Pro 13-inch|iPad Pro \(12.9-inch\)" || true
+          xcrun simctl list devicetypes | grep -E "iPhone 16 Pro Max|iPhone 17 Pro Max" || true
 
       - name: Install dependencies
         run: npm ci
@@ -56,12 +56,7 @@ jobs:
         run: |
           set -euo pipefail
           DEVICE_UDID=$(xcrun simctl list devices available | sed -nE \
-            's/.*iPad Pro 13-inch.*\(([0-9A-F-]{36})\).*/\1/p' | head -n 1)
-
-          if [ -z "$DEVICE_UDID" ]; then
-            DEVICE_UDID=$(xcrun simctl list devices available | sed -nE \
-              's/.*iPad Pro \(12\.9-inch\).*(\([0-9A-F-]{36}\)).*/\1/p' | tr -d '()' | head -n 1)
-          fi
+            's/.*iPhone (17 Pro Max|16 Pro Max).*\(([0-9A-F-]{36})\).*/\2/p' | head -n 1)
 
           if [ -z "$DEVICE_UDID" ]; then
             echo "::error::No available iPhone simulator was found"
@@ -91,7 +86,7 @@ jobs:
           APP_BUNDLE_ID: com.comodoidealab.rokurhythm
         run: |
           set -euo pipefail
-          APP_PATH="$RUNNER_TEMP/roku-rhythm-ipad-build/Build/Products/Debug-iphonesimulator/App.app"
+          APP_PATH="$RUNNER_TEMP/roku-rhythm-iphone-build/Build/Products/Debug-iphonesimulator/App.app"
           test -d "$APP_PATH"
 
           xcrun simctl boot "$DEVICE_UDID" 2>/dev/null || true
@@ -108,17 +103,18 @@ jobs:
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/roku-rhythm-iphone-artifacts"
           xcrun simctl io "$DEVICE_UDID" screenshot \
-            "$RUNNER_TEMP/roku-rhythm-ipad-artifacts/roku-rhythm-iphone-launch.png"
+            "$RUNNER_TEMP/roku-rhythm-iphone-artifacts/roku-rhythm-iphone-launch.png"
           xcrun simctl spawn "$DEVICE_UDID" log show \
             --last 2m --style compact \
-            > "$RUNNER_TEMP/roku-rhythm-ipad-artifacts/roku-rhythm-iphone-runtime.log" || true
+            > "$RUNNER_TEMP/roku-rhythm-iphone-artifacts/roku-rhythm-iphone-runtime.log" || true
 
       - name: Upload iPhone verification artifacts
         if: always()
         uses: actions/upload-artifact@v6
         with:
           name: roku-rhythm-iphone-verification-${{ github.run_number }}
-          path: ${{ runner.temp }}/roku-rhythm-ipad-artifacts
+          path: ${{ runner.temp }}/roku-rhythm-iphone-artifacts
           if-no-files-found: error
           retention-days: 7
           compression-level: 0
+
