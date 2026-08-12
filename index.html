@@ -2,22 +2,53 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#4338ca" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Roku Rhythm" />
-    <link rel="apple-touch-icon" href="/icon-192.png" />
-    <title>Roku Rhythm - 六曜とバイオリズム</title>
-    <meta name="description" content="六曜とバイオリズムを組み合わせた運勢予測アプリ" />
-    <link rel="manifest" href="/manifest.json" />
-    <script src="/assets/lunar-rokuyo.js"></script>
-    <script type="module" crossorigin src="/assets/index-BBQDPSNk.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-5YaLAr7z.css">
-    <link rel="stylesheet" href="/assets/mobile.css">
-  <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#17133b" />
+    <title>Roku Rhythm | 六曜とバイオリズム</title>
+    <meta
+      name="description"
+      content="Roku Rhythmの公式案内。六曜と3つのバイオリズムを楽しむアプリです。"
+    />
+    <link rel="icon" type="image/png" href="/assets/app-icon-1024.png" />
+    <meta name="robots" content="index,follow" />
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+        color: #f8f7ff;
+        background: #0b0b1f;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; min-width: 320px; background: radial-gradient(circle at 15% 0%, #29327e, #0b0b1f 58%); }
+      main { width: min(720px, 100%); margin: 0 auto; padding: 72px 24px 64px; }
+      .mark { display: inline-flex; align-items: center; gap: 12px; color: #bde8ff; font-size: 13px; font-weight: 800; letter-spacing: .18em; }
+      .mark img { width: 40px; height: 40px; border-radius: 12px; box-shadow: 0 0 18px rgba(98, 87, 255, .75); }
+      h1 { margin: 36px 0 20px; font-size: clamp(42px, 9vw, 76px); line-height: 1.08; letter-spacing: -.06em; }
+      .lead { max-width: 600px; margin: 0; color: #d8d7ea; font-size: 18px; line-height: 1.8; }
+      .card { margin-top: 48px; padding: 28px; border: 1px solid rgba(255,255,255,.16); border-radius: 24px; background: rgba(255,255,255,.08); box-shadow: 0 24px 70px rgba(0,0,0,.24); }
+      .card h2 { margin: 0 0 12px; font-size: 20px; }
+      .card p { margin: 0; color: #d8d7ea; line-height: 1.8; }
+      nav { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+      a { color: #fff; }
+      nav a { display: inline-block; padding: 12px 16px; border-radius: 999px; background: #5b45e5; text-decoration: none; font-weight: 700; }
+      nav a.secondary { background: rgba(255,255,255,.1); }
+      footer { margin-top: 56px; color: #9695ad; font-size: 13px; line-height: 1.7; }
+    </style>
+  </head>
   <body>
-    <div id="root"></div>
+    <main>
+      <div class="mark"><img src="/assets/app-icon-1024.png" alt="" aria-hidden="true" />ROKU RHYTHM</div>
+      <h1>今日のリズムを、<br />ひと目で。</h1>
+      <p class="lead">六曜と身体・感情・知性の3つの波から、今日の過ごし方を確認するライフスタイルアプリです。</p>
+      <section class="card" aria-labelledby="about-title">
+        <h2 id="about-title">Roku Rhythmについて</h2>
+        <p>Roku Rhythmは、六曜と3つのバイオリズムから、今日の過ごし方を確認できるアプリです。プロフィールや診断結果は端末内に保存され、アカウント登録や外部送信はありません。</p>
+        <nav aria-label="Roku Rhythmの案内">
+          <a href="/privacy.html">プライバシーポリシー</a>
+          <a class="secondary" href="/support.html">サポート</a>
+        </nav>
+      </section>
+      <footer>Roku Rhythmは娯楽・ライフスタイルを目的としたアプリです。重要な判断には使用しないでください。</footer>
+    </main>
   </body>
 </html>
