@@ -11,7 +11,12 @@ on:
       build_number:
         description: App Store build number (must be greater than the current App Store build)
         required: true
-        default: "10"
+        default: "12"
+        type: string
+      marketing_version:
+        description: App Store version
+        required: true
+        default: "1.0.1"
         type: string
 
 permissions:
@@ -35,6 +40,7 @@ jobs:
       KEYCHAIN_PATH: ${{ github.workspace }}/web-src/app-signing.keychain-db
       PROFILE_PATH: ${{ github.workspace }}/web-src/RokuRhythm.mobileprovision
       BUILD_NUMBER: ${{ inputs.build_number }}
+      MARKETING_VERSION: ${{ inputs.marketing_version }}
 
     steps:
       - name: Check out repository
@@ -64,8 +70,12 @@ jobs:
           UPLOAD_TO_TESTFLIGHT: ${{ inputs.upload_to_testflight }}
         run: |
           missing=0
-          if ! [[ "$BUILD_NUMBER" =~ ^[0-9]+$ ]] || [ "$BUILD_NUMBER" -le 6 ]; then
-            echo "::error::build_number must be numeric and greater than 6 (received: $BUILD_NUMBER)"
+          if ! [[ "$BUILD_NUMBER" =~ ^[0-9]+$ ]] || [ "$BUILD_NUMBER" -le 11 ]; then
+            echo "::error::build_number must be numeric and greater than 11 (received: $BUILD_NUMBER)"
+            missing=1
+          fi
+          if ! [[ "$MARKETING_VERSION" =~ ^[0-9]+(\.[0-9]+){1,2}$ ]]; then
+            echo "::error::marketing_version must be a semantic version (received: $MARKETING_VERSION)"
             missing=1
           fi
           for name in APPLE_TEAM_ID CERTIFICATE_BASE64 CERTIFICATE_PASSWORD PROFILE_BASE64; do
@@ -146,15 +156,22 @@ jobs:
             PRODUCT_BUNDLE_IDENTIFIER="$APP_BUNDLE_ID" \
             TARGETED_DEVICE_FAMILY=1 \
             CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
+            MARKETING_VERSION="$MARKETING_VERSION" \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" \
             clean archive
 
-      - name: Verify archived build number
+      - name: Verify archived version and build number
         run: |
           ARCHIVED_APP_PLIST="$ARCHIVE_PATH/Products/Applications/App.app/Info.plist"
           test -f "$ARCHIVED_APP_PLIST"
+          ACTUAL_MARKETING_VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$ARCHIVED_APP_PLIST")
+          if [ "$ACTUAL_MARKETING_VERSION" != "$MARKETING_VERSION" ]; then
+            echo "::error::Archive CFBundleShortVersionString=$ACTUAL_MARKETING_VERSION but expected $MARKETING_VERSION"
+            exit 1
+          fi
+          echo "Verified archive CFBundleShortVersionString=$ACTUAL_MARKETING_VERSION"
           ACTUAL_BUILD_NUMBER=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$ARCHIVED_APP_PLIST")
           if [ "$ACTUAL_BUILD_NUMBER" != "$BUILD_NUMBER" ]; then
             echo "::error::Archive CFBundleVersion=$ACTUAL_BUILD_NUMBER but expected $BUILD_NUMBER"
@@ -186,6 +203,12 @@ jobs:
 
           IPA_PATH=$(find "$EXPORT_PATH" -maxdepth 1 -name '*.ipa' -print -quit)
           test -n "$IPA_PATH"
+          IPA_MARKETING_VERSION=$(unzip -p "$IPA_PATH" 'Payload/*.app/Info.plist' | plutil -extract CFBundleShortVersionString raw -o - -)
+          if [ "$IPA_MARKETING_VERSION" != "$MARKETING_VERSION" ]; then
+            echo "::error::IPA CFBundleShortVersionString=$IPA_MARKETING_VERSION but expected $MARKETING_VERSION"
+            exit 1
+          fi
+          echo "Verified IPA CFBundleShortVersionString=$IPA_MARKETING_VERSION"
           IPA_BUILD_NUMBER=$(unzip -p "$IPA_PATH" 'Payload/*.app/Info.plist' | plutil -extract CFBundleVersion raw -o - -)
           if [ "$IPA_BUILD_NUMBER" != "$BUILD_NUMBER" ]; then
             echo "::error::IPA CFBundleVersion=$IPA_BUILD_NUMBER but expected $BUILD_NUMBER"
