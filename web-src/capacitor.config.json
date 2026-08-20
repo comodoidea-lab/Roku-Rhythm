@@ -1,0 +1,18 @@
+{
+  "appId": "com.comodoidealab.rokurhythm",
+  "appName": "Roku Rhythm",
+  "webDir": "dist",
+  "plugins": {
+    "LocalNotifications": {
+      "presentationOptions": ["sound", "banner", "list"]
+    },
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "launchAutoHide": true,
+      "launchFadeOutDuration": 250,
+      "backgroundColor": "#ffffffff",
+      "androidSplashResourceName": "splash",
+      "showSpinner": false
+    }
+  }
+}

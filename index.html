@@ -4,12 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#17133b" />
-    <title>Roku Rhythm | 六曜とバイオリズム</title>
+    <title>アプリ情報 | ComodoIdea</title>
     <meta
       name="description"
-      content="Roku Rhythmの公式案内。六曜と3つのバイオリズムを楽しむアプリです。"
+      content="ComodoIdeaが提供するアプリのプライバシーポリシーとサポート情報です。"
     />
-    <link rel="icon" type="image/png" href="/assets/app-icon-1024.png" />
+    <link rel="icon" type="image/png" href="/web-src/public/assets/brand/app-icon-1024.png" />
     <meta name="robots" content="index,follow" />
     <style>
       :root {
@@ -23,11 +23,17 @@
       main { width: min(720px, 100%); margin: 0 auto; padding: 72px 24px 64px; }
       .mark { display: inline-flex; align-items: center; gap: 12px; color: #bde8ff; font-size: 13px; font-weight: 800; letter-spacing: .18em; }
       .mark img { width: 40px; height: 40px; border-radius: 12px; box-shadow: 0 0 18px rgba(98, 87, 255, .75); }
-      h1 { margin: 36px 0 20px; font-size: clamp(42px, 9vw, 76px); line-height: 1.08; letter-spacing: -.06em; }
-      .lead { max-width: 600px; margin: 0; color: #d8d7ea; font-size: 18px; line-height: 1.8; }
+      .lead { max-width: 600px; margin: 36px 0 0; color: #d8d7ea; font-size: 18px; line-height: 1.8; }
       .card { margin-top: 48px; padding: 28px; border: 1px solid rgba(255,255,255,.16); border-radius: 24px; background: rgba(255,255,255,.08); box-shadow: 0 24px 70px rgba(0,0,0,.24); }
       .card h2 { margin: 0 0 12px; font-size: 20px; }
       .card p { margin: 0; color: #d8d7ea; line-height: 1.8; }
+      .apps { display: grid; gap: 24px; }
+      .app + .app { padding-top: 24px; border-top: 1px solid rgba(255,255,255,.14); }
+      .app-meta { display: flex; align-items: center; gap: 14px; }
+      .app-icon { width: 52px; height: 52px; flex: 0 0 52px; border-radius: 15px; object-fit: cover; box-shadow: 0 8px 22px rgba(0,0,0,.22); }
+      .app h3 { margin: 0 0 10px; font-size: 26px; letter-spacing: -.03em; }
+      .app-meta h3 { margin: 0; }
+      .app p { max-width: 580px; }
       nav { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
       a { color: #fff; }
       nav a { display: inline-block; padding: 12px 16px; border-radius: 999px; background: #5b45e5; text-decoration: none; font-weight: 700; }
@@ -37,18 +43,40 @@
   </head>
   <body>
     <main>
-      <div class="mark"><img src="/assets/app-icon-1024.png" alt="" aria-hidden="true" />ROKU RHYTHM</div>
-      <h1>今日のリズムを、<br />ひと目で。</h1>
-      <p class="lead">六曜と身体・感情・知性の3つの波から、今日の過ごし方を確認するライフスタイルアプリです。</p>
+      <div class="mark">COMODOIDEA APP SUPPORT</div>
+      <p class="lead">ComodoIdeaが提供するアプリのプライバシーポリシーとサポート情報をご案内します。</p>
       <section class="card" aria-labelledby="about-title">
-        <h2 id="about-title">Roku Rhythmについて</h2>
-        <p>Roku Rhythmは、六曜と3つのバイオリズムから、今日の過ごし方を確認できるアプリです。プロフィールや診断結果は端末内に保存され、アカウント登録や外部送信はありません。</p>
-        <nav aria-label="Roku Rhythmの案内">
-          <a href="/privacy.html">プライバシーポリシー</a>
-          <a class="secondary" href="/support.html">サポート</a>
-        </nav>
+        <h2 id="about-title">公開中のアプリ</h2>
+        <div class="apps">
+          <div class="app">
+            <div class="app-meta">
+              <img class="app-icon" src="/web-src/public/assets/brand/app-icon-1024.png" alt="" aria-hidden="true" />
+              <h3>Roku Rhythm</h3>
+            </div>
+            <div>
+              <p>六曜と3つのバイオリズムから、今日の過ごし方を確認するライフスタイルアプリです。</p>
+            </div>
+            <nav aria-label="Roku Rhythmの案内">
+              <a href="/roku-rhythm/privacy.html">プライバシーポリシー</a>
+              <a class="secondary" href="/roku-rhythm/support.html">サポート</a>
+            </nav>
+          </div>
+          <div class="app">
+            <div class="app-meta">
+              <img class="app-icon" src="/assets/kokolist-icon.png" alt="" aria-hidden="true" />
+              <h3>ここリスト</h3>
+            </div>
+            <div>
+              <p>場所ごとに「次にやること」を整理し、到着通知とホーム画面ウィジェットで思い出せる位置情報ベースのタスク管理アプリです。</p>
+            </div>
+            <nav aria-label="ここリストの案内">
+              <a href="/kokolist/privacy.html">プライバシーポリシー</a>
+              <a class="secondary" href="/kokolist/support.html">サポート</a>
+            </nav>
+          </div>
+        </div>
       </section>
-      <footer>Roku Rhythmは娯楽・ライフスタイルを目的としたアプリです。重要な判断には使用しないでください。</footer>
+      <footer>アプリごとに専用のページを用意しています。お問い合わせは <a href="mailto:info@comodoidea.com">info@comodoidea.com</a> までご連絡ください。</footer>
     </main>
   </body>
 </html>
