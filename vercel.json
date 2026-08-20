@@ -1,6 +1,8 @@
 {
   "rewrites": [
-    { "source": "/((?!assets/|sw.js|workbox-.*|registerSW.js|manifest.*|icon-.*|favicon.svg|privacy.html|support.html).*)", "destination": "/index.html" }
+    { "source": "/roku-rhythm/privacy.html", "destination": "/privacy.html" },
+    { "source": "/roku-rhythm/support.html", "destination": "/support.html" },
+    { "source": "/((?!assets/|sw.js|workbox-.*|registerSW.js|manifest.*|icon-.*|favicon.svg|privacy.html|support.html|kokolist/).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
