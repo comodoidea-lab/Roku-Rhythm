@@ -59,12 +59,11 @@ export default function Header({ name, birthDate, onOpenSettings }) {
           </button>
         </div>
 
-        {birthDate ? (
+        {/* The birth date is shown only in Settings, so it stays private
+            when this screen is shown to someone else. */}
+        {birthDate && name ? (
           <div className="app-profile-summary">
-            {name ? <p className="app-profile-name">{name}さん</p> : null}
-            <p className="app-profile-birthday">
-              生年月日: {new Date(birthDate).toLocaleDateString("ja-JP")}
-            </p>
+            <p className="app-profile-name">{name}さん</p>
           </div>
         ) : (
           <p className="app-hero-intro">今日の六曜と、3つのリズムを確認</p>

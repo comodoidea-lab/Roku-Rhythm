@@ -4,12 +4,20 @@ import { validateBirthDate } from "../lib/validation";
 const inputClassName =
   "block w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white";
 
-export default function LoginForm({ onSubmit }) {
-  const [name, setName] = useState("");
-  const [year, setYear] = useState("");
-  const [month, setMonth] = useState("");
-  const [day, setDay] = useState("");
+export default function LoginForm({
+  onSubmit,
+  onCancel,
+  initialName = "",
+  initialBirthDate = "",
+}) {
+  const [initialYear = "", initialMonth = "", initialDay = ""] =
+    initialBirthDate ? initialBirthDate.split("-") : [];
+  const [name, setName] = useState(initialName);
+  const [year, setYear] = useState(initialYear);
+  const [month, setMonth] = useState(initialMonth);
+  const [day, setDay] = useState(initialDay);
   const [error, setError] = useState("");
+  const isEditing = Boolean(initialBirthDate);
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -110,8 +118,18 @@ export default function LoginForm({ onSubmit }) {
         type="submit"
         className="w-full rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
       >
-        はじめる
+        {isEditing ? "保存する" : "はじめる"}
       </button>
+
+      {onCancel ? (
+        <button
+          type="button"
+          onClick={onCancel}
+          className="-mt-3 w-full rounded-lg px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+        >
+          キャンセル
+        </button>
+      ) : null}
     </form>
   );
 }

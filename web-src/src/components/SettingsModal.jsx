@@ -24,10 +24,15 @@ function Toggle({ label, checked, onChange, disabled = false }) {
 export default function SettingsModal({
   isOpen,
   onClose,
+  name,
+  birthDate,
+  onEditProfile,
   darkMode,
   onDarkModeChange,
   showDetailedStats,
   onShowDetailedStatsChange,
+  showChartTooltip,
+  onShowChartTooltipChange,
   dailyReminder,
   dailyReminderSupported,
   reminderMessage,
@@ -62,6 +67,30 @@ export default function SettingsModal({
         </h2>
 
         <div className="space-y-4">
+          {birthDate ? (
+            <div className="flex items-center justify-between gap-3 border-b border-gray-200 pb-4 dark:border-gray-700">
+              <div className="min-w-0 text-sm">
+                <p className="font-medium text-gray-700 dark:text-gray-300">
+                  プロフィール
+                </p>
+                {name ? (
+                  <p className="mt-1 truncate text-gray-600 dark:text-gray-300">
+                    {name}さん
+                  </p>
+                ) : null}
+                <p className="mt-1 text-gray-600 dark:text-gray-300">
+                  生年月日: {new Date(birthDate).toLocaleDateString("ja-JP")}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={onEditProfile}
+                className="shrink-0 rounded-lg px-3 py-2 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20"
+              >
+                変更
+              </button>
+            </div>
+          ) : null}
           <Toggle
             label="ダークモード"
             checked={darkMode}
@@ -71,6 +100,11 @@ export default function SettingsModal({
             label="詳細な統計を表示"
             checked={showDetailedStats}
             onChange={onShowDetailedStatsChange}
+          />
+          <Toggle
+            label="グラフの吹き出しを表示"
+            checked={showChartTooltip}
+            onChange={onShowChartTooltipChange}
           />
 
           <div>

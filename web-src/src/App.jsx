@@ -33,6 +33,8 @@ export default function App() {
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [showDetailedStats, setShowDetailedStats] = useState(true);
+  const [showChartTooltip, setShowChartTooltip] = useState(true);
+  const [editingProfile, setEditingProfile] = useState(false);
   const [dailyReminder, setDailyReminder] = useState(false);
   const [reminderMessage, setReminderMessage] = useState("");
   const [shareMessage, setShareMessage] = useState("");
@@ -53,6 +55,8 @@ export default function App() {
     if (savedSettings) {
       setDarkMode(savedSettings.darkMode);
       setShowDetailedStats(savedSettings.showDetailedStats);
+      // Older saved settings have no value here; keep the tooltip on for them.
+      setShowChartTooltip(savedSettings.showChartTooltip !== false);
     }
   }, []);
 
@@ -90,12 +94,13 @@ export default function App() {
       return;
     }
 
-    saveSettings({ darkMode, showDetailedStats });
-  }, [darkMode, showDetailedStats]);
+    saveSettings({ darkMode, showDetailedStats, showChartTooltip });
+  }, [darkMode, showDetailedStats, showChartTooltip]);
 
   function handleLogin(nextName, nextBirthDate) {
     setName(nextName);
     setBirthDate(nextBirthDate);
+    setEditingProfile(false);
   }
 
   async function handleDeleteData() {
@@ -117,6 +122,8 @@ export default function App() {
     setSelectedDate(toJapanTime());
     setDarkMode(false);
     setShowDetailedStats(true);
+    setShowChartTooltip(true);
+    setEditingProfile(false);
     setDailyReminder(false);
     setReminderMessage("");
     setShareMessage("");
@@ -227,7 +234,7 @@ export default function App() {
 
         <div className="app-content">
           <section className="result-card">
-          {birthDate ? (
+          {birthDate && !editingProfile ? (
             <>
               <div className="result-summary">
                 <h2 className="result-title">
@@ -274,14 +281,24 @@ export default function App() {
                 <BiorhythmTable {...biorhythm} />
                 <BiorhythmChart
                   birthDate={new Date(birthDate)}
+                  selectedDate={selectedDate}
                   onDateSelect={setSelectedDate}
                   darkMode={darkMode}
                   showDetailedStats={showDetailedStats}
+                  showTooltip={showChartTooltip}
                 />
               </div>
             </>
           ) : (
-            <LoginForm onSubmit={handleLogin} />
+            <LoginForm
+              key={editingProfile ? "edit" : "new"}
+              onSubmit={handleLogin}
+              onCancel={
+                editingProfile ? () => setEditingProfile(false) : undefined
+              }
+              initialName={editingProfile ? name : ""}
+              initialBirthDate={editingProfile ? birthDate : ""}
+            />
           )}
           </section>
 
@@ -294,10 +311,18 @@ export default function App() {
         <SettingsModal
           isOpen={settingsOpen}
           onClose={() => setSettingsOpen(false)}
+          name={name}
+          birthDate={birthDate}
+          onEditProfile={() => {
+            setSettingsOpen(false);
+            setEditingProfile(true);
+          }}
           darkMode={darkMode}
           onDarkModeChange={setDarkMode}
           showDetailedStats={showDetailedStats}
           onShowDetailedStatsChange={setShowDetailedStats}
+          showChartTooltip={showChartTooltip}
+          onShowChartTooltipChange={setShowChartTooltip}
           dailyReminder={dailyReminder}
           dailyReminderSupported={dailyReminderSupported}
           reminderMessage={reminderMessage}

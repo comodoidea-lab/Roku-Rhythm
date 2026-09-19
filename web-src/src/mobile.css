@@ -26,15 +26,21 @@
     padding: 0.38rem 0.45rem !important;
   }
 
-  .biorhythm-section .h-\[300px\] {
-    height: 12.25rem !important;
-    min-height: 12.25rem !important;
+  /* Scale the chart with the screen height: about 15rem on iPhone SE,
+     growing to 20rem on taller iPhones, instead of one fixed size. */
+  .biorhythm-section .biorhythm-chart {
+    --chart-height: clamp(15rem, 36vh, 20rem);
+    height: var(--chart-height) !important;
+    min-height: var(--chart-height) !important;
     margin-top: 0.75rem !important;
+    margin-right: -0.35rem;
+    margin-left: -0.35rem;
+    width: calc(100% + 0.7rem) !important;
   }
 
   .biorhythm-section .recharts-responsive-container,
   .biorhythm-section .recharts-wrapper {
-    max-height: 12.25rem !important;
+    max-height: var(--chart-height) !important;
   }
 
   .biorhythm-section .recharts-cartesian-axis-tick-value tspan,
