@@ -8,7 +8,9 @@ import LoginForm from "./components/LoginForm";
 import PrivacyPolicyModal from "./components/PrivacyPolicyModal";
 import ReceiptSheet from "./components/ReceiptSheet";
 import SettingsModal from "./components/SettingsModal";
+import { FALLBACK_APP_VERSION, getAppVersionLabel } from "./lib/appInfo";
 import { calculateBiorhythm } from "./lib/biorhythm";
+import { DEFAULT_CHART_SIZE, normalizeChartSize } from "./lib/chartSize";
 import { getRokuyo, toJapanTime } from "./lib/date";
 import {
   getDailyReminderEnabled,
@@ -34,6 +36,8 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [showDetailedStats, setShowDetailedStats] = useState(true);
   const [showChartTooltip, setShowChartTooltip] = useState(true);
+  const [chartSize, setChartSize] = useState(DEFAULT_CHART_SIZE);
+  const [appVersion, setAppVersion] = useState(FALLBACK_APP_VERSION);
   const [editingProfile, setEditingProfile] = useState(false);
   const [dailyReminder, setDailyReminder] = useState(false);
   const [reminderMessage, setReminderMessage] = useState("");
@@ -57,7 +61,20 @@ export default function App() {
       setShowDetailedStats(savedSettings.showDetailedStats);
       // Older saved settings have no value here; keep the tooltip on for them.
       setShowChartTooltip(savedSettings.showChartTooltip !== false);
+      setChartSize(normalizeChartSize(savedSettings.chartSize));
     }
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    getAppVersionLabel().then((label) => {
+      if (active) setAppVersion(label);
+    });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -94,8 +111,8 @@ export default function App() {
       return;
     }
 
-    saveSettings({ darkMode, showDetailedStats, showChartTooltip });
-  }, [darkMode, showDetailedStats, showChartTooltip]);
+    saveSettings({ darkMode, showDetailedStats, showChartTooltip, chartSize });
+  }, [darkMode, showDetailedStats, showChartTooltip, chartSize]);
 
   function handleLogin(nextName, nextBirthDate) {
     setName(nextName);
@@ -123,6 +140,7 @@ export default function App() {
     setDarkMode(false);
     setShowDetailedStats(true);
     setShowChartTooltip(true);
+    setChartSize(DEFAULT_CHART_SIZE);
     setEditingProfile(false);
     setDailyReminder(false);
     setReminderMessage("");
@@ -286,6 +304,7 @@ export default function App() {
                   darkMode={darkMode}
                   showDetailedStats={showDetailedStats}
                   showTooltip={showChartTooltip}
+                  size={chartSize}
                 />
               </div>
             </>
@@ -323,6 +342,9 @@ export default function App() {
           onShowDetailedStatsChange={setShowDetailedStats}
           showChartTooltip={showChartTooltip}
           onShowChartTooltipChange={setShowChartTooltip}
+          chartSize={chartSize}
+          onChartSizeChange={setChartSize}
+          appVersion={appVersion}
           dailyReminder={dailyReminder}
           dailyReminderSupported={dailyReminderSupported}
           reminderMessage={reminderMessage}

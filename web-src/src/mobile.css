@@ -26,16 +26,33 @@
     padding: 0.38rem 0.45rem !important;
   }
 
-  /* Scale the chart with the screen height: about 15rem on iPhone SE,
-     growing to 20rem on taller iPhones, instead of one fixed size. */
+  /* Chart size is chosen in Settings (small / medium / large). */
   .biorhythm-section .biorhythm-chart {
-    --chart-height: clamp(15rem, 36vh, 20rem);
+    --chart-bleed: 0rem;
     height: var(--chart-height) !important;
     min-height: var(--chart-height) !important;
     margin-top: 0.75rem !important;
-    margin-right: -0.35rem;
-    margin-left: -0.35rem;
-    width: calc(100% + 0.7rem) !important;
+    margin-right: calc(var(--chart-bleed) * -1);
+    margin-left: calc(var(--chart-bleed) * -1);
+    width: calc(100% + var(--chart-bleed) * 2) !important;
+  }
+
+  /* Small: the original compact chart before the size option existed. */
+  .biorhythm-section .biorhythm-chart--small {
+    --chart-height: 12.25rem;
+  }
+
+  /* Medium: halfway between small and large on every screen height. */
+  .biorhythm-section .biorhythm-chart--medium {
+    --chart-height: clamp(13.625rem, calc(6.125rem + 18vh), 16.125rem);
+    --chart-bleed: 0.175rem;
+  }
+
+  /* Large: scales with the screen height, about 15rem on iPhone SE,
+     growing to 20rem on taller iPhones. */
+  .biorhythm-section .biorhythm-chart--large {
+    --chart-height: clamp(15rem, 36vh, 20rem);
+    --chart-bleed: 0.35rem;
   }
 
   .biorhythm-section .recharts-responsive-container,

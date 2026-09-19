@@ -25,6 +25,7 @@ export default function BiorhythmChart({
   darkMode,
   showDetailedStats,
   showTooltip = true,
+  size = "medium",
 }) {
   const today = toJapanTime();
   const todayKey = format(today, "yyyy-MM-dd");
@@ -97,7 +98,9 @@ export default function BiorhythmChart({
   const tickColor = darkMode ? "#d1d5db" : "#374151";
 
   return (
-    <div className="biorhythm-chart mt-6 h-[300px] w-full">
+    <div
+      className={`biorhythm-chart biorhythm-chart--${size} mt-6 h-[300px] w-full`}
+    >
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={data}

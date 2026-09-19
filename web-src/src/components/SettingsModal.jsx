@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import { CHART_SIZES } from "../lib/chartSize";
 
 function Toggle({ label, checked, onChange, disabled = false }) {
   return (
@@ -21,6 +22,45 @@ function Toggle({ label, checked, onChange, disabled = false }) {
   );
 }
 
+function SizeSelector({ label, value, onChange }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span
+        id="chart-size-label"
+        className="text-sm font-medium text-gray-700 dark:text-gray-300"
+      >
+        {label}
+      </span>
+      <div
+        role="radiogroup"
+        aria-labelledby="chart-size-label"
+        className="inline-flex rounded-full bg-gray-200 p-0.5 dark:bg-gray-700"
+      >
+        {CHART_SIZES.map((size) => {
+          const selected = size.value === value;
+
+          return (
+            <button
+              key={size.value}
+              type="button"
+              role="radio"
+              aria-checked={selected}
+              onClick={() => onChange(size.value)}
+              className={`min-w-9 touch-manipulation rounded-full px-2.5 py-1 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 ${
+                selected
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-600 dark:text-gray-300"
+              }`}
+            >
+              {size.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function SettingsModal({
   isOpen,
   onClose,
@@ -33,6 +73,9 @@ export default function SettingsModal({
   onShowDetailedStatsChange,
   showChartTooltip,
   onShowChartTooltipChange,
+  chartSize,
+  onChartSizeChange,
+  appVersion,
   dailyReminder,
   dailyReminderSupported,
   reminderMessage,
@@ -106,6 +149,11 @@ export default function SettingsModal({
             checked={showChartTooltip}
             onChange={onShowChartTooltipChange}
           />
+          <SizeSelector
+            label="グラフサイズ"
+            value={chartSize}
+            onChange={onChartSizeChange}
+          />
 
           <div>
             <Toggle
@@ -154,7 +202,7 @@ export default function SettingsModal({
         </div>
 
         <div className="mt-6 text-xs text-gray-500 dark:text-gray-400">
-          バージョン: 1.0.0
+          バージョン: {appVersion}
         </div>
       </div>
     </div>

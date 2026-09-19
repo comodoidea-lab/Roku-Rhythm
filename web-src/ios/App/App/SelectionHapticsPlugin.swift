@@ -24,9 +24,10 @@ public class SelectionHapticsPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 }
 
-/// Registers the app-local plugin above with the Capacitor bridge.
+/// Registers the app-local plugins with the Capacitor bridge.
 class MainViewController: CAPBridgeViewController {
     override open func capacitorDidLoad() {
         bridge?.registerPluginInstance(SelectionHapticsPlugin())
+        bridge?.registerPluginInstance(AppInfoPlugin())
     }
 }
